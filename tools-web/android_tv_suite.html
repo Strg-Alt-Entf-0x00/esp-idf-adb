@@ -980,9 +980,12 @@
         }
       }
 
+      let firmwareAccumulator = "";
+
       function checkFirmwareSignature(text) {
         if (serialHandshakeVerified || serialPort === null) return;
-        if (/tv>|Android TV|android_tv_adb|esp_adb|Type 'help'/i.test(text)) {
+        firmwareAccumulator = (firmwareAccumulator + text).slice(-1000);
+        if (/tv>|Android TV|android_tv_adb|esp_adb|Type 'help'/i.test(firmwareAccumulator)) {
           serialHandshakeVerified = true;
           clearHandshakeTimeout();
           updateBadge("connected", "Connected");
@@ -1285,9 +1288,14 @@
           remaining = new Uint8Array();
           const markerIndex = findBytes(data, SERIAL_BEGIN_PREFIX);
           if (markerIndex < 0) {
-            const flushLength = Math.max(0, data.length - SERIAL_BEGIN_PREFIX.length + 1);
-            appendConsoleBytes(data.slice(0, flushLength));
-            serialFrameBuffer = data.slice(flushLength);
+            const potentialIndex = findPotentialBytes(data, SERIAL_BEGIN_PREFIX);
+            if (potentialIndex < 0) {
+              appendConsoleBytes(data);
+              serialFrameBuffer = new Uint8Array();
+            } else {
+              appendConsoleBytes(data.slice(0, potentialIndex));
+              serialFrameBuffer = data.slice(potentialIndex);
+            }
             return;
           }
 
@@ -1409,6 +1417,7 @@
           serialFrameBuffer = new Uint8Array();
           serialCsvTransfer = null;
           serialHandshakeVerified = false;
+          firmwareAccumulator = "";
           clearHandshakeTimeout();
           updateBadge("connecting", "Verifying…");
           updateSerialControls();
@@ -1428,10 +1437,9 @@
           serialHandshakeTimeout = window.setTimeout(() => {
             window.clearTimeout(retryTimer);
             if (!serialHandshakeVerified && serialPort === port) {
-              const errMsg = "Rejected: The connected USB device did not respond as the Android TV ADB firmware (missing 'tv>' prompt).";
-              setSerialStatus(errMsg, true);
-              appendSerialOutput(`\n[Connection Error] ${errMsg}\n`);
-              disconnectSerial();
+              updateBadge("disconnected", "Unverified");
+              setSerialStatus("Connected, but 'tv>' prompt not detected yet. Press Enter in console to probe.", true);
+              appendSerialOutput("\n[Notice] Did not detect 'tv>' prompt signature automatically. Press Enter in console to verify.\n");
             }
           }, 6000);
         } catch (error) {
