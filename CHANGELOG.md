@@ -15,7 +15,11 @@
 - Documented that the example's NVS data is not encrypted by default and that
   production provisioning must configure encryption separately.
 - Added a standalone local-first HTML5 channel CSV viewer/editor with a dark
-  default theme, Web Serial console, and framed ESP32 channel-list export.
+  default theme, tabbed workspace layout, virtual TV remote controls, dynamic app launcher,
+  single connect toggle with firmware handshake verification, Web Serial console, and framed
+  ESP32 channel-list export.
+- Lowered stale close stream log level in ADB client to debug to eliminate spurious warnings
+  during rapid sequential shell executions.
 - Added an Android TV companion application with a one-shot, DUMP-protected
   receiver for headless read-only export requests triggered via `tv-export`.
 

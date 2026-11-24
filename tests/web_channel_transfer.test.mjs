@@ -239,3 +239,25 @@ test("supports remote navigation commands and parses app listing", async () => {
     "tv-app-stop com.google.android.youtube.tv\r\n"
   );
 });
+
+test("toggles single connect/disconnect button state and switches workspace tabs", async () => {
+  const app = createApp();
+  const connectBtn = app.elements.get("serialConnectButton");
+
+  assert.equal(connectBtn.textContent, "Connect to ESP32");
+  await connectBtn.dispatch("click");
+
+  // Connected state
+  assert.equal(connectBtn.textContent, "Disconnect");
+  assert.equal(app.elements.get("connectionBadge").className.includes("connecting"), true);
+
+  // Feed prompt to verify handshake
+  app.state.controller.enqueue(new TextEncoder().encode("Android TV ADB: connected\r\ntv> "));
+  await new Promise((resolve) => setTimeout(resolve, 20));
+  assert.equal(app.elements.get("connectionBadge").className.includes("connected"), true);
+
+  // Click disconnect on same button
+  await connectBtn.dispatch("click");
+  assert.equal(connectBtn.textContent, "Connect to ESP32");
+  assert.equal(app.elements.get("connectionBadge").className.includes("disconnected"), true);
+});

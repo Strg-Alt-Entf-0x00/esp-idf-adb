@@ -554,7 +554,7 @@ static esp_err_t adb_shell_internal(
             return err;
         }
         if (adb_packet_is_stale_close(&header, local_id)) {
-            ESP_LOGW(
+            ESP_LOGD(
                 TAG,
                 "Ignoring CLOSE for inactive stream during OPEN: "
                 "remote_id=0x%08" PRIx32 " local_id=0x%08" PRIx32,
@@ -594,7 +594,7 @@ static esp_err_t adb_shell_internal(
             break;
         }
         if (adb_packet_is_stale_close(&header, local_id)) {
-            ESP_LOGW(
+            ESP_LOGD(
                 TAG,
                 "Ignoring CLOSE for inactive stream: "
                 "remote_id=0x%08" PRIx32 " local_id=0x%08" PRIx32,

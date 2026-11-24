@@ -149,165 +149,231 @@
     .group-title { color: #becbd8; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
     .remote-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
     .remote-row input { flex: 1 1 200px; min-height: 38px; padding: 6px 10px; border: 1px solid #3b4857; border-radius: 7px; color: var(--ink); background: #121a23; }
-    .dpad-container { display: flex; flex-direction: column; align-items: center; gap: 10px; background: #131a22; padding: 12px; border-radius: 10px; border: 1px solid #283340; max-width: 440px; }
-    .dpad-grid { display: grid; grid-template-columns: repeat(3, 50px); grid-template-rows: repeat(3, 44px); gap: 6px; justify-content: center; }
+    .dpad-container { display: flex; flex-direction: column; align-items: center; gap: 10px; background: #131a22; padding: 14px; border-radius: 10px; border: 1px solid #283340; max-width: 440px; margin: 0 auto; }
+    .dpad-grid { display: grid; grid-template-columns: repeat(3, 52px); grid-template-rows: repeat(3, 46px); gap: 6px; justify-content: center; }
     .dpad-btn { font-size: 14px; font-weight: bold; }
     .dpad-center { background: #1f3a52; color: #a5d2ff; }
     .top-row, .nav-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
-    .remote-btn { min-height: 36px; padding: 6px 12px; font-size: 12px; }
+    .remote-btn { min-height: 38px; padding: 6px 14px; font-size: 13px; font-weight: 600; }
     .app-launcher-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
     .app-launcher-row select { flex: 1 1 260px; min-height: 38px; padding: 6px 10px; border: 1px solid #3b4857; border-radius: 7px; color: var(--ink); background: #121a23; }
+
+    .top-actions { display: flex; align-items: center; gap: 10px; }
+    .badge {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 6px 12px; border-radius: 999px; font-size: 13px; font-weight: 650;
+      border: 1px solid var(--line);
+    }
+    .badge.disconnected { background: #1c2128; border-color: #373e47; color: var(--muted); }
+    .badge.connecting { background: #2f2312; border-color: #73531b; color: #ffbe5c; }
+    .badge.connected { background: #132a1c; border-color: #26653b; color: #7ee787; }
+    .badge-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+
+    .tabs-nav {
+      display: flex; gap: 4px; border-bottom: 1px solid var(--line);
+      margin: 18px 0 16px; overflow-x: auto;
+    }
+    .tab-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 18px; border: none; border-bottom: 2px solid transparent;
+      border-radius: 8px 8px 0 0; background: transparent;
+      color: var(--muted); font-size: 14px; font-weight: 600; cursor: pointer;
+      white-space: nowrap; transition: all .15s ease;
+    }
+    .tab-btn:hover { color: var(--ink); background: #1a2430; }
+    .tab-btn.active {
+      color: var(--blue); border-bottom-color: var(--blue);
+      background: #17222e;
+    }
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; }
   </style>
 </head>
 <body>
   <main class="shell">
     <header class="topline">
       <div>
-        <h1>TV Channel Manager</h1>
-        <p class="intro">Review and organize your TV channel list in a local draft.</p>
+        <h1>Android TV Manager</h1>
+        <p class="intro">Control your Android TV, manage apps, and organize TV channel lists.</p>
       </div>
-      <span class="local-badge">Local-first · Optional USB serial</span>
+      <div class="top-actions">
+        <span id="connectionBadge" class="badge disconnected"><span class="badge-dot"></span> Disconnected</span>
+        <button id="serialConnectButton" class="primary" type="button">Connect to ESP32</button>
+        <button id="serialDisconnectButton" class="hidden" type="button">Disconnect</button>
+      </div>
     </header>
 
     <section class="notice" aria-label="Important notice">
-      <strong>CSV edits stay on this PC and are never uploaded.</strong>
-      <p>The optional serial console can send commands to ESP32 firmware; supported commands may control a TV over ADB. Review commands before sending. This page does not connect directly to ADB, and a downloaded CSV is not a TV import format.</p>
+      <strong>Local-first & private:</strong>
+      <p>All channel edits stay on this PC and are never uploaded. Commands are sent exclusively to your connected ESP32 via USB Web Serial.</p>
     </section>
 
-    <section class="panel serial-panel" aria-label="ESP32 serial console">
-      <div class="serial-heading">
-        <strong>ESP32 console over USB serial</strong>
-        <span>Connect to the ESP32's UART console to send firmware CLI commands. The browser does not open a direct connection to the TV.</span>
-      </div>
-      <div class="serial-controls">
-        <button id="serialConnectButton" class="primary" type="button">Connect to ESP32</button>
-        <button id="serialExportButton" type="button" disabled>Read TV channel list</button>
-        <button id="serialDisconnectButton" type="button" disabled>Disconnect</button>
-        <button id="serialClearButton" type="button" disabled>Clear output</button>
-      </div>
-      <div class="serial-command-row">
-        <label for="serialCommand">Console command
-          <input id="serialCommand" type="text" maxlength="512" placeholder="Type help to list commands" autocomplete="off" spellcheck="false" disabled>
-        </label>
-        <button id="serialSendButton" type="button" disabled>Send command</button>
-      </div>
-      <pre id="serialOutput" class="serial-output" aria-label="ESP32 serial console output" aria-live="polite">Console output will appear here after connecting.</pre>
-      <span id="serialStatus" class="serial-status" role="status" aria-live="polite"></span>
-      <p class="serial-help">Choose the ESP32's USB serial port in the browser prompt. The default baud rate is 115,200. Close any other serial monitor first. The TV export requires the Android TV ADB firmware, a connected TV (<code>tv-connect &lt;host&gt; [port]</code>), Android TV Companion 0.8.0, and its <code>READ_TV_LISTINGS</code> permission. The export request is read-only; it creates a CSV in the TV's Downloads folder and transfers it here over USB.</p>
-    </section>
+    <nav class="tabs-nav" role="tablist" aria-label="Workspace tabs">
+      <button id="tabBtnChannels" class="tab-btn active" role="tab" aria-selected="true" data-tab-target="tabChannels">
+        📺 TV Channels
+      </button>
+      <button id="tabBtnRemote" class="tab-btn" role="tab" aria-selected="false" data-tab-target="tabRemote">
+        🎮 Remote & Apps
+      </button>
+      <button id="tabBtnConsole" class="tab-btn" role="tab" aria-selected="false" data-tab-target="tabConsole">
+        💻 Serial Console
+      </button>
+    </nav>
 
-    <section class="panel remote-panel" aria-label="Android TV Remote & Controls">
-      <div class="remote-header">
-        <strong>Android TV Remote & App Controls</strong>
-        <span>Manage device connection, launch or stop TV apps, and control navigation via the ESP32.</span>
-      </div>
-
-      <div class="remote-grid-layout">
-        <div class="remote-group">
-          <span class="group-title">Target TV Connection</span>
-          <div class="remote-row">
-            <input id="tvHostInput" type="text" value="192.168.178.21" placeholder="TV IP (e.g. 192.168.1.50)" spellcheck="false" disabled>
-            <button id="tvConnectButton" type="button" disabled>Connect TV</button>
-            <button id="tvInfoButton" type="button" disabled>Device Info</button>
-            <button id="tvStatusButton" type="button" disabled>TV Status</button>
-          </div>
+    <!-- TAB 1: TV Channels -->
+    <div id="tabChannels" class="tab-pane active" role="tabpanel">
+      <section id="dropZone" class="panel load-panel drop-zone" aria-label="Load a CSV file">
+        <div class="load-copy">
+          <strong>Channel list actions</strong>
+          <span>Export channels from your connected TV over USB, or load a local CSV file.</span>
         </div>
-
-        <div class="remote-group">
-          <span class="group-title">Virtual Remote Control</span>
-          <div class="dpad-container">
-            <div class="remote-row top-row">
-              <button type="button" class="remote-btn" data-tv-cmd="tv-key power" title="Power" disabled>⏻ Power</button>
-              <button type="button" class="remote-btn" data-tv-cmd="tv-key mute" title="Mute" disabled>🔇 Mute</button>
-              <button type="button" class="remote-btn" data-tv-cmd="tv-volume down 1" title="Volume Down" disabled>🔉 Vol -</button>
-              <button type="button" class="remote-btn" data-tv-cmd="tv-volume up 1" title="Volume Up" disabled>🔊 Vol +</button>
-            </div>
-
-            <div class="dpad-grid">
-              <div></div>
-              <button type="button" class="remote-btn dpad-btn" data-tv-cmd="tv-key up" title="Up" disabled>▲</button>
-              <div></div>
-              <button type="button" class="remote-btn dpad-btn" data-tv-cmd="tv-key left" title="Left" disabled>◀</button>
-              <button type="button" class="remote-btn dpad-btn dpad-center" data-tv-cmd="tv-key ok" title="OK / Select" disabled>OK</button>
-              <button type="button" class="remote-btn dpad-btn" data-tv-cmd="tv-key right" title="Right" disabled>▶</button>
-              <div></div>
-              <button type="button" class="remote-btn dpad-btn" data-tv-cmd="tv-key down" title="Down" disabled>▼</button>
-              <div></div>
-            </div>
-
-            <div class="remote-row nav-row">
-              <button type="button" class="remote-btn" data-tv-cmd="tv-key back" title="Back" disabled>↩ Back</button>
-              <button type="button" class="remote-btn" data-tv-cmd="tv-key home" title="Home" disabled>⌂ Home</button>
-              <button type="button" class="remote-btn" data-tv-cmd="tv-key menu" title="Menu" disabled>☰ Menu</button>
-              <button type="button" class="remote-btn" data-tv-cmd="tv-key play-pause" title="Play/Pause" disabled>⏯ Play</button>
-              <button type="button" class="remote-btn" data-tv-cmd="tv-key search" title="Search" disabled>🔍 Search</button>
-              <button type="button" class="remote-btn" data-tv-cmd="tv-key assistant" title="Assistant" disabled>🎙 Assist</button>
-            </div>
-          </div>
+        <div class="load-actions">
+          <button id="serialExportButton" class="primary" type="button" disabled>Read TV channel list</button>
+          <button id="openButton" type="button">Open CSV</button>
+          <button id="exportButton" type="button" disabled>Download CSV draft</button>
+          <button id="resetButton" type="button" disabled>Reset draft</button>
         </div>
+        <input id="fileInput" class="hidden" type="file" accept=".csv,text/csv">
+      </section>
 
-        <div class="remote-group">
-          <span class="group-title">Installed TV Apps</span>
-          <div class="app-launcher-row">
-            <select id="tvAppSelect" disabled>
-              <option value="">-- No apps discovered yet (Click 'Query Apps') --</option>
+      <section id="summary" class="summary hidden" aria-label="CSV summary" aria-live="polite">
+        <article class="panel stat"><strong id="statRows">0</strong><span>Channel rows</span></article>
+        <article class="panel stat"><strong id="statUnnumbered">0</strong><span>missing channel number</span></article>
+        <article class="panel stat"><strong id="statUnnamed">0</strong><span>missing channel name</span></article>
+        <article class="panel stat"><strong id="statDotNames">0</strong><span>dot-like channel names</span></article>
+        <article id="duplicateStat" class="panel stat"><strong id="statDuplicates">0</strong><span>duplicate numbers per input</span></article>
+      </section>
+
+      <section class="panel workspace" aria-label="Channel list">
+        <div class="toolbar">
+          <div class="field">
+            <label for="searchInput">Search channel list</label>
+            <input id="searchInput" type="search" placeholder="Name, number, type, or TV input" disabled>
+          </div>
+          <div class="field compact">
+            <label for="sortSelect">Sort view</label>
+            <select id="sortSelect" disabled>
+              <option value="manual">Draft order</option>
+              <option value="number">Channel number</option>
+              <option value="name">Channel name</option>
+              <option value="broadcast">Broadcast type</option>
             </select>
-            <button id="tvFetchAppsButton" type="button" disabled>Query Apps</button>
-            <button id="tvLaunchAppButton" class="primary" type="button" disabled>Launch</button>
-            <button id="tvStopAppButton" class="danger" type="button" disabled>Stop</button>
+          </div>
+          <div class="toolbar-info">Sorting changes the view only. To change the draft order, select “Draft order” and drag rows or use the arrow buttons.</div>
+        </div>
+
+        <div class="table-wrap">
+          <table aria-describedby="tableHelp">
+            <caption class="sr-only">TV channel rows from a local CSV file</caption>
+            <thead>
+              <tr>
+                <th class="order-cell" scope="col">Draft order</th>
+                <th scope="col">Channel number</th>
+                <th scope="col">Channel name</th>
+                <th scope="col">Broadcast type</th>
+                <th scope="col">Service type</th>
+                <th scope="col">Visibility</th>
+                <th scope="col">Browsable</th>
+                <th scope="col">Locked</th>
+                <th scope="col">TV input / input ID</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody">
+              <tr><td class="empty" colspan="9"><strong>No channel list loaded</strong>Open a CSV file, drop it here, or read it directly from your TV.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="table-footer">
+          <span id="tableCount">No data loaded</span>
+        </div>
+      </section>
+    </div>
+
+    <!-- TAB 2: Remote & Apps -->
+    <div id="tabRemote" class="tab-pane" role="tabpanel">
+      <section class="panel remote-panel" aria-label="Android TV Remote & Controls">
+        <div class="remote-header">
+          <strong>Android TV Remote & App Controls</strong>
+          <span>Manage device connection, launch or stop TV apps, and control navigation via the ESP32.</span>
+        </div>
+
+        <div class="remote-grid-layout">
+          <div class="remote-group">
+            <span class="group-title">Target TV Connection</span>
+            <div class="remote-row">
+              <input id="tvHostInput" type="text" value="192.168.178.21" placeholder="TV IP (e.g. 192.168.1.50)" spellcheck="false" disabled>
+              <button id="tvConnectButton" type="button" disabled>Connect TV</button>
+              <button id="tvInfoButton" type="button" disabled>Device Info</button>
+              <button id="tvStatusButton" type="button" disabled>TV Status</button>
+            </div>
+          </div>
+
+          <div class="remote-group">
+            <span class="group-title">Virtual Remote Control</span>
+            <div class="dpad-container">
+              <div class="remote-row top-row">
+                <button type="button" class="remote-btn" data-tv-cmd="tv-key power" title="Power" disabled>⏻ Power</button>
+                <button type="button" class="remote-btn" data-tv-cmd="tv-key mute" title="Mute" disabled>🔇 Mute</button>
+                <button type="button" class="remote-btn" data-tv-cmd="tv-volume down 1" title="Volume Down" disabled>🔉 Vol -</button>
+                <button type="button" class="remote-btn" data-tv-cmd="tv-volume up 1" title="Volume Up" disabled>🔊 Vol +</button>
+              </div>
+
+              <div class="dpad-grid">
+                <div></div>
+                <button type="button" class="remote-btn dpad-btn" data-tv-cmd="tv-key up" title="Up" disabled>▲</button>
+                <div></div>
+                <button type="button" class="remote-btn dpad-btn" data-tv-cmd="tv-key left" title="Left" disabled>◀</button>
+                <button type="button" class="remote-btn dpad-btn dpad-center" data-tv-cmd="tv-key ok" title="OK / Select" disabled>OK</button>
+                <button type="button" class="remote-btn dpad-btn" data-tv-cmd="tv-key right" title="Right" disabled>▶</button>
+                <div></div>
+                <button type="button" class="remote-btn dpad-btn" data-tv-cmd="tv-key down" title="Down" disabled>▼</button>
+                <div></div>
+              </div>
+
+              <div class="remote-row nav-row">
+                <button type="button" class="remote-btn" data-tv-cmd="tv-key back" title="Back" disabled>↩ Back</button>
+                <button type="button" class="remote-btn" data-tv-cmd="tv-key home" title="Home" disabled>⌂ Home</button>
+                <button type="button" class="remote-btn" data-tv-cmd="tv-key menu" title="Menu" disabled>☰ Menu</button>
+                <button type="button" class="remote-btn" data-tv-cmd="tv-key voice-assist" title="Voice Assist" disabled>🎙 Assist</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="remote-group">
+            <span class="group-title">Installed TV Apps</span>
+            <div class="app-launcher-row">
+              <select id="tvAppSelect" disabled>
+                <option value="">-- No apps discovered yet (Click 'Query Apps') --</option>
+              </select>
+              <button id="tvFetchAppsButton" type="button" disabled>Query Apps</button>
+              <button id="tvLaunchAppButton" class="primary" type="button" disabled>Launch</button>
+              <button id="tvStopAppButton" class="danger" type="button" disabled>Stop</button>
+            </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </div>
 
-    <section id="dropZone" class="panel load-panel drop-zone" aria-label="Load a CSV file">
-      <div class="load-copy">
-        <strong>Load channel list</strong>
-        <span>Drop a TV channel CSV file here, or choose a file.</span>
-      </div>
-      <div class="load-actions">
-        <button id="openButton" class="primary" type="button">Open CSV</button>
-        <button id="exportButton" type="button" disabled>Download CSV draft</button>
-        <button id="resetButton" type="button" disabled>Reset draft</button>
-      </div>
-      <input id="fileInput" class="hidden" type="file" accept=".csv,text/csv">
-    </section>
-
-    <section id="summary" class="summary hidden" aria-label="CSV summary" aria-live="polite">
-      <article class="panel stat"><strong id="statRows">0</strong><span>Channel rows</span></article>
-      <article class="panel stat"><strong id="statUnnumbered">0</strong><span>missing channel number</span></article>
-      <article class="panel stat"><strong id="statUnnamed">0</strong><span>missing channel name</span></article>
-      <article class="panel stat"><strong id="statDotNames">0</strong><span>dot-like channel names</span></article>
-      <article id="duplicateStat" class="panel stat"><strong id="statDuplicates">0</strong><span>duplicate numbers per input</span></article>
-    </section>
-
-    <section class="panel workspace" aria-label="Channel list">
-      <div class="toolbar">
-        <div class="field">
-          <label for="searchInput">Search channel list</label>
-          <input id="searchInput" type="search" placeholder="Name, number, type, or TV input" disabled>
+    <!-- TAB 3: Serial Console -->
+    <div id="tabConsole" class="tab-pane" role="tabpanel">
+      <section class="panel serial-panel" aria-label="ESP32 serial console">
+        <div class="serial-heading">
+          <strong>ESP32 console over USB serial</strong>
+          <span>Send firmware CLI commands and inspect real-time UART logs from the connected ESP32-P4.</span>
         </div>
-        <div class="field compact">
-          <label for="sortSelect">Sort view</label>
-          <select id="sortSelect" disabled>
-            <option value="manual">Draft order</option>
-            <option value="number">Channel number</option>
-            <option value="name">Channel name</option>
-            <option value="broadcast">Broadcast type</option>
-          </select>
+        <div class="serial-command-row">
+          <label for="serialCommand">Console command
+            <input id="serialCommand" type="text" maxlength="512" placeholder="Type help to list commands" autocomplete="off" spellcheck="false" disabled>
+          </label>
+          <button id="serialSendButton" type="button" disabled>Send command</button>
+          <button id="serialClearButton" type="button" disabled>Clear log</button>
         </div>
-        <div class="toolbar-info">Sorting changes the view only. To change the draft order, select “Draft order” and drag rows or use the arrow buttons.</div>
-      </div>
-
-      <div class="table-wrap">
-        <table aria-describedby="tableHelp">
-          <caption class="sr-only">TV channel rows from a local CSV file</caption>
-          <thead>
-            <tr>
-              <th class="order-cell" scope="col">Draft order</th>
-              <th scope="col">Channel number</th>
-              <th scope="col">Channel name</th>
-              <th scope="col">Broadcast type</th>
+        <pre id="serialOutput" class="serial-output" aria-label="ESP32 serial console output" aria-live="polite">Console output will appear here after connecting.</pre>
+        <span id="serialStatus" class="serial-status" role="status" aria-live="polite"></span>
+        <p class="serial-help">Baud rate: 115,200 baud. Available commands: <code>wifi status</code>, <code>tv-connect &lt;host&gt;</code>, <code>tv-status</code>, <code>tv-key &lt;name&gt;</code>, <code>tv-volume &lt;up|down&gt;</code>, <code>tv-app-list</code>, <code>tv-device-info</code>, <code>tv-export</code>.</p>
+      </section>
+    </div>
               <th scope="col">Service type</th>
               <th scope="col">Visibility</th>
               <th scope="col">Browsable</th>
@@ -391,6 +457,9 @@
         tvLaunchAppButton: document.getElementById("tvLaunchAppButton"),
         tvStopAppButton: document.getElementById("tvStopAppButton"),
         remoteButtons: document.querySelectorAll ? Array.from(document.querySelectorAll(".remote-btn")) : [],
+        connectionBadge: document.getElementById("connectionBadge"),
+        tabButtons: document.querySelectorAll ? Array.from(document.querySelectorAll(".tab-btn")) : [],
+        tabPanes: document.querySelectorAll ? Array.from(document.querySelectorAll(".tab-pane")) : [],
         tableWrap: document.querySelector(".table-wrap")
       };
 
@@ -422,11 +491,49 @@
         elements.serialStatus.style.color = isError ? "#ff9999" : "";
       }
 
+      function updateBadge(state, label) {
+        if (!elements.connectionBadge) return;
+        elements.connectionBadge.className = `badge ${state}`;
+        elements.connectionBadge.replaceChildren();
+        const dot = document.createElement("span");
+        dot.className = "badge-dot";
+        elements.connectionBadge.append(dot, document.createTextNode(` ${label}`));
+      }
+
+      let serialHandshakeVerified = false;
+      let serialHandshakeTimeout = null;
+
+      function clearHandshakeTimeout() {
+        if (serialHandshakeTimeout !== null) {
+          window.clearTimeout(serialHandshakeTimeout);
+          serialHandshakeTimeout = null;
+        }
+      }
+
+      function checkFirmwareSignature(text) {
+        if (serialHandshakeVerified || serialPort === null) return;
+        if (/tv>|Android TV|android_tv_adb|esp_adb|Type 'help'/i.test(text)) {
+          serialHandshakeVerified = true;
+          clearHandshakeTimeout();
+          updateBadge("connected", "ESP32 Verified");
+          setSerialStatus("ESP32 Android TV ADB firmware verified and ready.");
+        }
+      }
+
       function updateSerialControls() {
         const connected = serialPort !== null;
-        elements.serialConnectButton.disabled = !serialAvailable || connected;
+        elements.serialConnectButton.disabled = !serialAvailable;
+        if (connected) {
+          elements.serialConnectButton.textContent = "Disconnect";
+          elements.serialConnectButton.classList.remove("primary");
+          elements.serialConnectButton.classList.add("danger");
+        } else {
+          elements.serialConnectButton.textContent = "Connect to ESP32";
+          elements.serialConnectButton.classList.remove("danger");
+          elements.serialConnectButton.classList.add("primary");
+        }
         elements.serialExportButton.disabled = !connected || serialExportInProgress;
-        elements.serialDisconnectButton.disabled = !connected;
+        if (elements.serialDisconnectButton) elements.serialDisconnectButton.disabled = !connected;
         elements.serialCommand.disabled = !connected;
         elements.serialSendButton.disabled = !connected || serialExportInProgress;
         elements.serialClearButton.disabled = !hasSerialOutput;
@@ -481,6 +588,7 @@
         elements.serialOutput.textContent =
           `${elements.serialOutput.textContent}${text}`.slice(-MAX_SERIAL_OUTPUT_CHARS);
         elements.serialOutput.scrollTop = elements.serialOutput.scrollHeight;
+        checkFirmwareSignature(text);
         processAppListOutput(text);
         updateSerialControls();
       }
@@ -796,9 +904,18 @@
           serialConsoleDecoder = new TextDecoder();
           serialFrameBuffer = new Uint8Array();
           serialCsvTransfer = null;
+          serialHandshakeVerified = false;
+          clearHandshakeTimeout();
+          updateBadge("connecting", "Verifying…");
           updateSerialControls();
-          setSerialStatus(`Connected at ${formatNumber(SERIAL_BAUD_RATE)} baud. Type help to list commands.`);
+          setSerialStatus(`Connected at ${formatNumber(SERIAL_BAUD_RATE)} baud. Verifying Android TV ADB firmware…`);
           serialReadTask = readSerial(port);
+          serialHandshakeTimeout = window.setTimeout(() => {
+            if (!serialHandshakeVerified && serialPort === port) {
+              setSerialStatus("Rejected: The connected USB device did not respond as the Android TV ADB firmware.", true);
+              disconnectSerial();
+            }
+          }, 4500);
         } catch (error) {
           if (error instanceof Error && (error.name === "NotFoundError" || error.name === "AbortError")) {
             setSerialStatus("Port selection was cancelled.");
@@ -813,6 +930,9 @@
         if (!port) return;
         const reader = serialReader;
         let disconnectError = null;
+        clearHandshakeTimeout();
+        serialHandshakeVerified = false;
+        updateBadge("disconnected", "Disconnected");
         if (serialExportInProgress) {
           finishSerialExport("Serial connection closed before the TV CSV transfer completed.", true);
         }
@@ -1286,7 +1406,13 @@
         setStatus("CSV draft downloaded. It is not a TV import format.");
       }
 
-      elements.serialConnectButton.addEventListener("click", connectSerial);
+      elements.serialConnectButton.addEventListener("click", async () => {
+        if (serialPort === null) {
+          await connectSerial();
+        } else {
+          await disconnectSerial();
+        }
+      });
       elements.serialExportButton.addEventListener("click", () => {
         if (!serialPort) return;
         if (!window.confirm(
@@ -1294,7 +1420,21 @@
         )) return;
         sendSerialCommand("tv-export");
       });
-      elements.serialDisconnectButton.addEventListener("click", disconnectSerial);
+      elements.serialDisconnectButton?.addEventListener("click", disconnectSerial);
+
+      elements.tabButtons?.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          elements.tabButtons.forEach((b) => {
+            b.classList.remove("active");
+            if (b.setAttribute) b.setAttribute("aria-selected", "false");
+          });
+          elements.tabPanes?.forEach((p) => p.classList.remove("active"));
+          btn.classList.add("active");
+          if (btn.setAttribute) btn.setAttribute("aria-selected", "true");
+          const target = document.getElementById(btn.dataset?.tabTarget);
+          if (target) target.classList.add("active");
+        });
+      });
       elements.serialSendButton.addEventListener("click", sendSerialCommand);
       elements.serialCommand.addEventListener("keydown", (event) => {
         if (event.key === "Enter") {
