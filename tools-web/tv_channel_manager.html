@@ -182,7 +182,7 @@
     <section id="dropZone" class="panel load-panel drop-zone" aria-label="Load a CSV file">
       <div class="load-copy">
         <strong>Load channel list</strong>
-        <span>Drop a TV CSV exported by the PC manager here, or choose a file.</span>
+        <span>Drop a TV channel CSV file here, or choose a file.</span>
       </div>
       <div class="load-actions">
         <button id="openButton" class="primary" type="button">Open CSV</button>
@@ -473,11 +473,13 @@
               const transfer = serialCsvTransfer;
               const data = joinBytes(transfer.pending, remaining);
               remaining = new Uint8Array();
-              const abortMarker = new TextEncoder().encode(`\r\nTVCSV_ABORT:${transfer.id}\r\n`);
+              const abortMarker = new TextEncoder().encode(`TVCSV_ABORT:${transfer.id}`);
               const abortIndex = findBytes(data, abortMarker);
               if (abortIndex >= 0) {
+                const newlineIndex = data.indexOf(0x0a, abortIndex);
                 finishSerialExport("The ESP32 could not complete the TV channel transfer.", true);
-                serialFrameBuffer = data.slice(abortIndex + abortMarker.length);
+                const resumeIndex = newlineIndex >= 0 ? newlineIndex + 1 : abortIndex + abortMarker.length;
+                serialFrameBuffer = data.slice(resumeIndex);
                 remaining = serialFrameBuffer;
                 serialFrameBuffer = new Uint8Array();
                 continue;
@@ -504,23 +506,42 @@
             const transfer = serialCsvTransfer;
             const data = joinBytes(transfer.pending, remaining);
             remaining = new Uint8Array();
-            const endMarker = new TextEncoder().encode(`\r\nTVCSV_END:${transfer.id}\r\n`);
-            const abortMarker = new TextEncoder().encode(`\r\nTVCSV_ABORT:${transfer.id}\r\n`);
-            if (startsWithBytes(data, endMarker)) {
-              serialCsvTransfer = null;
-              importSerialCsv(transfer);
-              remaining = data.slice(endMarker.length);
-              continue;
+
+            let markerOffset = 0;
+            while (markerOffset < data.length && (data[markerOffset] === 0x0d || data[markerOffset] === 0x0a)) {
+              markerOffset += 1;
             }
-            if (startsWithBytes(data, abortMarker)) {
-              finishSerialExport("The ESP32 could not complete the TV channel transfer.", true);
-              remaining = data.slice(abortMarker.length);
-              continue;
-            }
-            if (hasPartialBytePrefix(data, endMarker) || hasPartialBytePrefix(data, abortMarker)) {
+            const payload = data.slice(markerOffset);
+            const endMarker = new TextEncoder().encode(`TVCSV_END:${transfer.id}`);
+            const abortMarker = new TextEncoder().encode(`TVCSV_ABORT:${transfer.id}`);
+
+            if (startsWithBytes(payload, endMarker)) {
+              const newlineIndex = payload.indexOf(0x0a, endMarker.length);
+              if (newlineIndex >= 0) {
+                serialCsvTransfer = null;
+                importSerialCsv(transfer);
+                remaining = payload.slice(newlineIndex + 1);
+                continue;
+              }
               transfer.pending = data;
               return;
             }
+
+            if (startsWithBytes(payload, abortMarker)) {
+              const newlineIndex = payload.indexOf(0x0a, abortMarker.length);
+              serialCsvTransfer = null;
+              finishSerialExport("The ESP32 could not complete the TV channel transfer.", true);
+              if (newlineIndex >= 0) {
+                remaining = payload.slice(newlineIndex + 1);
+              }
+              continue;
+            }
+
+            if (hasPartialBytePrefix(payload, endMarker) || hasPartialBytePrefix(payload, abortMarker) || payload.length === 0) {
+              transfer.pending = data;
+              return;
+            }
+
             finishSerialExport("The TV channel transfer ended with an invalid frame.", true);
             serialFrameBuffer = data;
             remaining = serialFrameBuffer;
@@ -553,7 +574,7 @@
 
           appendConsoleBytes(data.slice(0, markerIndex));
           const header = new TextDecoder().decode(data.slice(markerIndex, newlineIndex + 1));
-          const match = /^TVCSV_BEGIN:([a-f0-9]{32}):(\d+)\r?\n$/.exec(header);
+          const match = /^TVCSV_BEGIN:([a-f0-9]{32}):(\d+)\r*\n$/.exec(header);
           if (!match) {
             appendSerialOutput(header);
             finishSerialExport("The ESP32 sent an invalid channel transfer header.", true);

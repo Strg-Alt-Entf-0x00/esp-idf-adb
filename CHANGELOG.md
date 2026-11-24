@@ -2,25 +2,22 @@
 
 ## Unreleased
 
-- Added a Waveshare ESP32-P4 WiFi6 UART console example using the onboard
-  ESP32-C6 over ESP-Hosted/SDIO.
-- Added a provider-neutral Android TV remote example with dynamic package
-  listing, device information, bounded volume requests, and generic key input.
+- Added a Waveshare ESP32-P4 WiFi6 Android TV remote example using the onboard
+  ESP32-C6 over ESP-Hosted/SDIO with dynamic package listing, device information,
+  bounded volume requests, generic key input, and framed channel export.
 - Made Wi-Fi status shared across the console and event task with atomic state,
   and clarified that an ADB shell close does not confirm Android action success.
 - Added console-managed Wi-Fi setup and persistent Wi-Fi credentials and ADB
   RSA identity in NVS; passwords are entered at a hidden prompt.
-- Added CI builds for the protocol test app on ESP32 and ESP32-P4 and for both
-  Wi-Fi examples on ESP32-P4.
+- Added CI builds for the protocol test app on ESP32 and ESP32-P4 and for the
+  Android TV Wi-Fi example on ESP32-P4.
 - Improved error handling for PSA private-key export and NVS initialization.
 - Documented that the example's NVS data is not encrypted by default and that
   production provisioning must configure encryption separately.
-- Added a Windows standard-library GUI for explicit ADB channel export,
-  searchable table review, and local CSV drafts; TV write-back remains disabled.
-- Added a standalone local-first HTML channel CSV viewer/editor with a dark
+- Added a standalone local-first HTML5 channel CSV viewer/editor with a dark
   default theme, Web Serial console, and framed ESP32 channel-list export.
-- Added a one-shot, DUMP-protected Android companion receiver for headless
-  read-only export requests from the PC manager.
+- Added an Android TV companion application with a one-shot, DUMP-protected
+  receiver for headless read-only export requests triggered via `tv-export`.
 
 ## 0.1.0 - 2026-10-24
 

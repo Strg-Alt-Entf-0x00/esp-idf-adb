@@ -1,8 +1,0 @@
-menu "ADB console example"
-
-config EXAMPLE_WIFI_MAXIMUM_RETRY
-    int "Maximum Wi-Fi reconnect attempts"
-    range 1 100
-    default 5
-
-endmenu

@@ -19,61 +19,38 @@ authorize the client key only on devices you control.
 
 The implementation targets ESP-IDF 6.0.2 or newer, using its PSA Crypto API,
 and declares the currently supported ESP32-family targets. CI builds the
-protocol test application for ESP32 and ESP32-P4, and the console example for
-ESP32-P4. Other target/version combinations should be built in their
+protocol test application for ESP32 and ESP32-P4, and the flagship Android TV example
+for ESP32-P4. Other target/version combinations should be built in their
 consuming project before deployment.
 
-## Examples and tests
+## Examples and tools
 
-[`examples/ws-esp32-p4-wifi6-console-adb-dev`](examples/ws-esp32-p4-wifi6-console-adb-dev/README.md) is the user-facing
-Wi-Fi and UART console example. It demonstrates connecting to an ADB endpoint,
-running shell commands, and sending Android key events. It persists both the
-Wi-Fi credentials and ADB identity in NVS; the example does not enable NVS
-encryption, so production devices need an appropriate encryption/provisioning
-setup.
+- [`examples/ws-esp32-p4-wifi6-android-tv-adb-dev`](examples/ws-esp32-p4-wifi6-android-tv-adb-dev/README.md)
+  is the flagship Wi-Fi, NVS, ADB, and Android TV integration example on the Waveshare ESP32-P4
+  WiFi6 board with ESP-Hosted/SDIO. It provides Wi-Fi credential management, persistent RSA identity,
+  interactive ADB console commands, device info, installed-package listing, app launch/stop,
+  and framed channel list streaming via `tv-export`.
 
-[`examples/ws-esp32-p4-wifi6-android-tv-adb-dev`](examples/ws-esp32-p4-wifi6-android-tv-adb-dev/README.md)
-is the provider-neutral Android TV remote example for the Waveshare ESP32-P4
-WiFi6 board. It uses the same persisted Wi-Fi and ADB setup but adds named
-key events, device information, dynamic installed-package listing, app launch
-by package name, and raw shell access. It contains no hardcoded apps or
-TV-specific product lists.
+- [`android-tv-companion`](android-tv-companion/README.md)
+  is an optional, read-only Android TV companion application (version `0.8.0`+). It uses public
+  Android APIs (`TvContract.Channels`, `TvInputManager`) to inspect inputs and channels. It provides
+  a protected one-shot broadcast receiver (`de.esp32adb.companion/.AdbExportReceiver`) allowing the
+  firmware `tv-export` command to trigger and stream a channel list without root or OEM unlocking.
 
-[`android-companion`](android-companion/README.md) is an optional,
-read-only Android app prototype for capability discovery through public
-Android APIs. It currently reports device features, TV inputs, and any
-channels exposed by the standard TV provider. It does not control or modify
-the TV and does not yet communicate with the ESP32.
+- [`tools-web`](tools-web/README.md)
+  provides a standalone local-first HTML5 viewer/editor and Web Serial console (`tools-web/tv_channel_manager.html`).
+  It connects directly to the ESP32 USB serial console at 115,200 baud, requests a channel export, validates
+  stream-framed CSV chunks, and displays a dark-themed interactive table with filtering and local CSV draft download.
 
-[`tools-py`](tools-py/README.md) contains a Windows desktop table for reading
-the companion's channel export over an explicitly selected ADB connection.
-It can edit a local CSV draft, but does not write channel changes back to the
-TV.
+- [`tests/protocol`](tests/protocol/README.md)
+  is a separate Unity test application for protocol wire-header encoding/decoding, malformed packet
+  rejection, and RSA public-key serialization.
 
-[`tools-web`](tools-web/README.md) provides a standalone local-first HTML
-viewer/editor and optional Web Serial console. With the Android TV ADB example
-and Android TV Companion `0.8.0`, it can request a read-only channel export
-through the ESP32 and receive the CSV over USB. The browser does not connect
-directly to the TV's ADB service or write channel data back to the tuner.
-[`tools-py`](tools-py/README.md) remains available as a direct ADB desktop
-export path while the Web Serial workflow is validated on hardware.
-
-The [development progress record](ANDROID_TV_ADB_PROGRESS.md) distinguishes
-verified board behavior from remaining integration tests.
-
-`test_apps/protocol` is a separate Unity test application for protocol
-encoding/decoding and RSA public-key serialization. Keep the tests: they
-validate the component itself and are not made redundant by an example.
-GitHub Actions is configured to build the test application for ESP32 and
-ESP32-P4 and both Wi-Fi examples for ESP32-P4. The workflow validates
-compilation only; running the Unity tests still requires flashing the test app
-to a board.
-
-On Windows, `test_apps/protocol/esp-build.bat` can select either target and
+On Windows, `tests/protocol/esp-build.bat` can select either target and
 build, clean, flash, or monitor the test application:
 
 ```cmd
-cd test_apps\protocol
+cd tests\protocol
 esp-build.bat -t esp32 build
 esp-build.bat -t esp32p4 build
 esp-build.bat -t esp32p4 -p COM4 flash monitor
@@ -165,10 +142,10 @@ The Node tests use only built-in modules.
 
 The Unity test app checks ADB wire-header encoding/decoding, malformed headers,
 RSA public-key serialization, and shell streaming callbacks. Build it for
-either target from `test_apps/protocol` with the ESP-IDF extension or:
+either target from `tests/protocol` with the ESP-IDF extension or:
 
 ```powershell
-cd test_apps/protocol
+cd tests/protocol
 idf.py set-target esp32
 idf.py build
 idf.py set-target esp32p4

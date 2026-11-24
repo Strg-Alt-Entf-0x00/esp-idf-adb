@@ -131,8 +131,8 @@ commands. Shell commands run synchronously until the remote stream closes, so
 long-running commands (for example, continuous log output) can occupy the
 serial console indefinitely; avoid them.
 
-An optional read-only Android companion prototype is documented in
-[`android-companion`](../../android-companion/README.md). It uses public
-Android APIs to inspect TV inputs and the standard channel provider; it does
-not replace ADB, alter the TV, or require OEM unlocking. It is not yet
-integrated with the ESP32.
+An optional read-only Android companion application is documented in
+[`android-tv-companion`](../../android-tv-companion/README.md). It uses public
+Android APIs to inspect TV inputs and the standard channel provider, and integrates
+with the ESP32 firmware via `tv-export` to deliver channel listings over serial
+without modifying TV tuner data or requiring root/OEM unlocking.

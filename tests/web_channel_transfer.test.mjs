@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import vm from "node:vm";
 
-const html = readFileSync(new URL("../tools-web/index.html", import.meta.url), "utf8");
+const html = readFileSync(new URL("../tools-web/tv_channel_manager.html", import.meta.url), "utf8");
 const inlineScript = html.match(/<script>([\s\S]*?)<\/script>/)?.[1];
 assert.ok(inlineScript, "expected the web app to contain one inline script");
 
@@ -106,7 +106,7 @@ function createApp() {
     Uint8Array,
     Intl
   };
-  vm.runInNewContext(inlineScript, context, { filename: "tools-web/index.html" });
+  vm.runInNewContext(inlineScript, context, { filename: "tools-web/tv_channel_manager.html" });
   return { elements, state };
 }
 
@@ -164,4 +164,30 @@ test("does not import a serial transfer that the firmware aborts", async () => {
 
   assert.equal(app.elements.get("tableBody").children.length, 0);
   assert.equal(app.elements.get("serialStatus").textContent, "The ESP32 could not complete the TV channel transfer.");
+});
+
+test("imports a CSV with CRLF-doubled serial framing (newlib VFS UART compatibility)", async () => {
+  const app = createApp();
+  await connectAndStartExport(app);
+
+  const csv = [
+    "\uFEFF\"channel_number\",\"channel_name\",\"input_id\",\"broadcast_type\",\"service_type\",\"broadcast_visibility_type\",\"browsable\",\"locked\"\r\n",
+    "\"42\",\"Test Channel\",\"tuner\",\"TYPE_DVB_S\",\"AUDIO_VIDEO\",\"VISIBLE\",\"true\",\"false\"\r\n"
+  ].join("");
+  const encoder = new TextEncoder();
+  const csvBytes = encoder.encode(csv);
+  const requestId = "c".repeat(32);
+  const frame = encoder.encode(
+    `tv> tv-export\r\r\nTVCSV_BEGIN:${requestId}:${csvBytes.length}\r\r\n${csv}\r\r\nTVCSV_END:${requestId}\r\r\n`
+  );
+
+  for (let offset = 0; offset < frame.length; offset += 5) {
+    app.state.controller.enqueue(frame.slice(offset, offset + 5));
+  }
+  await new Promise((resolve) => setTimeout(resolve, 20));
+
+  assert.equal(app.elements.get("tableCount").textContent, "1 of 1 channel rows");
+  assert.equal(app.elements.get("tableBody").children.length, 1);
+  assert.equal(app.elements.get("tableBody").children[0].children[2].children[0].textContent, "Test Channel");
+  assert.equal(app.elements.get("serialStatus").textContent, "TV channel list received and loaded.");
 });

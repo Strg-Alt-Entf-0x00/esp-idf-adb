@@ -865,7 +865,7 @@ static bool is_tv_export_path(
 
     size_t prefix_length = sizeof(prefix) - 1;
     size_t path_length = strlen(path);
-    size_t timestamp_length = 16;
+    size_t timestamp_length = 15;
     if (path_length != prefix_length + timestamp_length + (size_t)suffix_length
         || strncmp(path, prefix, prefix_length) != 0) {
         return false;
@@ -884,9 +884,6 @@ static bool is_tv_export_path(
         if (!isdigit((unsigned char)timestamp[index])) {
             return false;
         }
-    }
-    if (timestamp[15] != '-') {
-        return false;
     }
     return memcmp(timestamp + timestamp_length, suffix, (size_t)suffix_length) == 0;
 }
@@ -1069,8 +1066,16 @@ static int console_tv_export(int argc, char **argv)
     }
 
     esp_log_level_set("*", ESP_LOG_NONE);
-    if (printf("\r\nTVCSV_BEGIN:%s:%lu\r\n", request_id, (unsigned long)csv_size) < 0
-        || fflush(stdout) != 0) {
+    fflush(stdout);
+    char marker[96];
+    int marker_length = snprintf(
+        marker,
+        sizeof(marker),
+        "\r\nTVCSV_BEGIN:%s:%lu\r\n",
+        request_id,
+        (unsigned long)csv_size);
+    if (marker_length < 0 || (size_t)marker_length >= sizeof(marker)
+        || uart_write_bytes(UART_NUM_0, marker, marker_length) != marker_length) {
         esp_log_level_set("*", CONFIG_LOG_DEFAULT_LEVEL);
         printf("Could not start the serial CSV transfer.\n");
         return 1;
@@ -1090,11 +1095,12 @@ static int console_tv_export(int argc, char **argv)
         && stream.written_size == csv_size
         && response_length == csv_size;
     if (transfer_ok) {
-        printf("\r\nTVCSV_END:%s\r\n", request_id);
-        fflush(stdout);
+        marker_length = snprintf(marker, sizeof(marker), "\r\nTVCSV_END:%s\r\n", request_id);
     } else {
-        printf("\r\nTVCSV_ABORT:%s\r\n", request_id);
-        fflush(stdout);
+        marker_length = snprintf(marker, sizeof(marker), "\r\nTVCSV_ABORT:%s\r\n", request_id);
+    }
+    if (marker_length > 0 && (size_t)marker_length < sizeof(marker)) {
+        uart_write_bytes(UART_NUM_0, marker, marker_length);
     }
     esp_log_level_set("*", CONFIG_LOG_DEFAULT_LEVEL);
 
