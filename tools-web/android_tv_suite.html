@@ -145,10 +145,16 @@
       font-size: 13px;
     }
     .help-section strong {
-      display: block;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
       color: #cbd5e1;
-      margin-bottom: 3px;
+      margin-bottom: 4px;
       font-size: 13.5px;
+    }
+    .help-section strong svg {
+      flex-shrink: 0;
+      stroke: #7ea3c7;
     }
     .help-section p {
       margin: 0;
@@ -643,19 +649,31 @@
         </div>
         <div class="help-dialog-body">
           <div class="help-section">
-            <strong>🔒 Local-first & 100% Private</strong>
+            <strong>
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              <span>Local-first & 100% Private</span>
+            </strong>
             <p>All channel edits, reordering, and configurations stay strictly on this PC and are never uploaded to any server or cloud. Commands are sent exclusively to your connected ESP32 via USB Web Serial.</p>
           </div>
           <div class="help-section">
-            <strong>📺 Direct TV Channel Tuning</strong>
-            <p>Click the green <strong>▶</strong> play button on any channel in the list (or double-click the row) to tune your Android TV tuner directly to that channel number.</p>
+            <strong>
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"/><polyline points="17 2 12 7 7 2"/></svg>
+              <span>Direct TV Channel Tuning</span>
+            </strong>
+            <p>Click the green play button on any channel in the list (or double-click the row) to tune your Android TV tuner directly to that channel number.</p>
           </div>
           <div class="help-section">
-            <strong>🎮 Authentic TV Remote Sidebar</strong>
+            <strong>
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="2" width="12" height="20" rx="3"/><circle cx="12" cy="7" r="1.5" fill="currentColor"/><polyline points="10 13 14 13"/><polyline points="12 11 12 15"/><circle cx="12" cy="18" r="1" fill="currentColor"/></svg>
+              <span>Authentic TV Remote Sidebar</span>
+            </strong>
             <p>The collapsible right sidebar matches your physical TV remote control. All buttons transmit standard Android keycodes via the ESP32 ADB bridge.</p>
           </div>
           <div class="help-section">
-            <strong>📱 App Management</strong>
+            <strong>
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+              <span>App Management</span>
+            </strong>
             <p>Discover installed Android packages on your TV with <em>Query Apps</em>, and launch or force-stop them directly.</p>
           </div>
         </div>
