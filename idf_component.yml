@@ -7,12 +7,3 @@ issues: "https://github.com/Strg-Alt-Entf-0x00/esp-idf-adb/issues"
 
 dependencies:
   idf: ">=6.0.2"
-
-files:
-  exclude:
-    - "**/.*"
-    - "**/.*/**/*"
-    - "**/.venv/**/*"
-    - "**/*.egg-info/**/*"
-    - "**/*.old"
-    - "**/*.bak"
