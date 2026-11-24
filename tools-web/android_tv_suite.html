@@ -63,18 +63,97 @@
     .intro { margin: 7px 0 0; color: var(--muted); }
     .local-badge { flex: 0 0 auto; padding: 7px 11px; border: 1px solid #315b42; border-radius: 999px; background: #16271d; color: #a7dfb7; font-size: 13px; font-weight: 650; }
 
-    .notice {
-      margin: 20px 0 16px;
-      padding: 12px 15px;
-      border: 1px solid #75602f;
-      border-radius: 9px;
-      background: #2a2417;
-      color: #e6d39e;
-      line-height: 1.5;
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 4px;
+      height: 38px;
+    }
+    .badge-dot {
+      display: inline-block;
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      background: #ef4444;
+      box-shadow: 0 0 7px rgba(239, 68, 68, 0.7);
+      transition: all 0.25s ease;
+    }
+    .badge.connected .badge-dot {
+      background: #10b981;
+      box-shadow: 0 0 8px rgba(16, 185, 129, 0.8);
+    }
+    .badge.connecting .badge-dot {
+      background: #f59e0b;
+      box-shadow: 0 0 8px rgba(245, 158, 11, 0.8);
+    }
+    .badge.disconnected .badge-dot {
+      background: #ef4444;
+      box-shadow: 0 0 7px rgba(239, 68, 68, 0.7);
     }
 
-    .notice strong { color: #ffe3a2; }
-    .notice p { margin: 3px 0 0; }
+    dialog.help-dialog {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #0f1620;
+      color: var(--ink);
+      padding: 0;
+      max-width: 520px;
+      width: 90vw;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75);
+    }
+    dialog.help-dialog::backdrop {
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(3px);
+    }
+    .help-dialog-card {
+      display: flex;
+      flex-direction: column;
+    }
+    .help-dialog-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 13px 18px;
+      border-bottom: 1px solid var(--line);
+      background: #141c26;
+    }
+    .help-dialog-title {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      font-size: 14px;
+      font-weight: 700;
+      color: #e2e8f0;
+    }
+    .help-dialog-title svg {
+      stroke: var(--blue);
+    }
+    .btn-close {
+      min-width: 30px;
+      min-height: 30px;
+      padding: 0;
+      font-size: 13px;
+      border-radius: 6px;
+    }
+    .help-dialog-body {
+      padding: 18px 20px 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      line-height: 1.5;
+      font-size: 13px;
+    }
+    .help-section strong {
+      display: block;
+      color: #cbd5e1;
+      margin-bottom: 3px;
+      font-size: 13.5px;
+    }
+    .help-section p {
+      margin: 0;
+      color: var(--muted);
+    }
 
     .panel { border: 1px solid var(--line); border-radius: 12px; background: var(--panel); box-shadow: 0 3px 14px #00000020; }
     
@@ -540,7 +619,10 @@
         <p class="intro">Universal remote, app launcher, live serial console & TV channel manager for ESP32 ADB.</p>
       </div>
       <div class="top-actions">
-        <span id="connectionBadge" class="badge disconnected"><span class="badge-dot"></span> Disconnected</span>
+        <span id="connectionBadge" class="badge disconnected" title="Status: Disconnected" aria-label="Status: Disconnected"><span class="badge-dot"></span></span>
+        <button id="helpModalBtn" class="btn-icon" type="button" title="Help & Privacy Info" aria-label="Help & Privacy Info">
+          <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        </button>
         <button id="serialConnectButton" class="btn-icon btn-connect disconnected" type="button" title="Connect to ESP32" aria-label="Connect to ESP32">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#f1f5f9" stroke-width="2"><path d="M12 22v-5"/><path d="M9 8V2"/><path d="M15 2v6"/><path d="M18 8H6a2 2 0 0 0-2 2v3a6 6 0 0 0 6 6h4a6 6 0 0 0 6-6v-3a2 2 0 0 0-2-2z"/></svg>
           <span class="btn-label">Connect to ESP32</span>
@@ -549,10 +631,36 @@
       </div>
     </header>
 
-    <section class="notice" aria-label="Important notice">
-      <strong>Local-first & private:</strong>
-      <p>All channel edits stay on this PC and are never uploaded. Commands are sent exclusively to your connected ESP32 via USB Web Serial.</p>
-    </section>
+    <!-- HELP & PRIVACY DIALOG -->
+    <dialog id="helpDialog" class="help-dialog" aria-labelledby="helpDialogTitle">
+      <div class="help-dialog-card">
+        <div class="help-dialog-header">
+          <div class="help-dialog-title" id="helpDialogTitle">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            <span>Help & Privacy Information</span>
+          </div>
+          <button id="closeHelpBtn" class="btn-icon btn-close" type="button" title="Close dialog" aria-label="Close dialog">✕</button>
+        </div>
+        <div class="help-dialog-body">
+          <div class="help-section">
+            <strong>🔒 Local-first & 100% Private</strong>
+            <p>All channel edits, reordering, and configurations stay strictly on this PC and are never uploaded to any server or cloud. Commands are sent exclusively to your connected ESP32 via USB Web Serial.</p>
+          </div>
+          <div class="help-section">
+            <strong>📺 Direct TV Channel Tuning</strong>
+            <p>Click the green <strong>▶</strong> play button on any channel in the list (or double-click the row) to tune your Android TV tuner directly to that channel number.</p>
+          </div>
+          <div class="help-section">
+            <strong>🎮 Authentic TV Remote Sidebar</strong>
+            <p>The collapsible right sidebar matches your physical TV remote control. All buttons transmit standard Android keycodes via the ESP32 ADB bridge.</p>
+          </div>
+          <div class="help-section">
+            <strong>📱 App Management</strong>
+            <p>Discover installed Android packages on your TV with <em>Query Apps</em>, and launch or force-stop them directly.</p>
+          </div>
+        </div>
+      </div>
+    </dialog>
 
     <!-- TOP CONTROLS: TARGET TV & APPS -->
     <div class="top-controls-grid">
@@ -904,6 +1012,9 @@
         dockedConsole: document.getElementById("dockedConsole"),
         dockedConsoleHeader: document.getElementById("dockedConsoleHeader"),
         consoleToggleBtn: document.getElementById("consoleToggleBtn"),
+        helpModalBtn: document.getElementById("helpModalBtn"),
+        helpDialog: document.getElementById("helpDialog"),
+        closeHelpBtn: document.getElementById("closeHelpBtn"),
         toggleRemoteBtn: document.getElementById("toggleRemoteBtn"),
         remoteSidebar: document.getElementById("remoteSidebar"),
         tvHostInput: document.getElementById("tvHostInput"),
@@ -952,10 +1063,14 @@
       function updateBadge(state, label) {
         if (!elements.connectionBadge) return;
         elements.connectionBadge.className = `badge ${state}`;
+        elements.connectionBadge.title = `Status: ${label}`;
+        if (elements.connectionBadge.setAttribute) {
+          elements.connectionBadge.setAttribute("aria-label", `Status: ${label}`);
+        }
         elements.connectionBadge.replaceChildren();
         const dot = document.createElement("span");
         dot.className = "badge-dot";
-        elements.connectionBadge.append(dot, document.createTextNode(` ${label}`));
+        elements.connectionBadge.append(dot);
       }
 
       let serialHandshakeVerified = false;
@@ -2144,6 +2259,28 @@
         render();
         setStatus("The original order and values from the loaded CSV have been restored.");
       });
+
+      if (elements.helpModalBtn && elements.helpDialog) {
+        elements.helpModalBtn.addEventListener("click", () => {
+          if (typeof elements.helpDialog.showModal === "function") {
+            elements.helpDialog.showModal();
+          }
+        });
+      }
+      if (elements.closeHelpBtn && elements.helpDialog) {
+        elements.closeHelpBtn.addEventListener("click", () => {
+          if (typeof elements.helpDialog.close === "function") {
+            elements.helpDialog.close();
+          }
+        });
+      }
+      if (elements.helpDialog) {
+        elements.helpDialog.addEventListener("click", (event) => {
+          if (event.target === elements.helpDialog && typeof elements.helpDialog.close === "function") {
+            elements.helpDialog.close();
+          }
+        });
+      }
     })();
   </script>
 </body>
