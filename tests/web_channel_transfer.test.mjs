@@ -191,3 +191,51 @@ test("imports a CSV with CRLF-doubled serial framing (newlib VFS UART compatibil
   assert.equal(app.elements.get("tableBody").children[0].children[2].children[0].textContent, "Test Channel");
   assert.equal(app.elements.get("serialStatus").textContent, "TV channel list received and loaded.");
 });
+
+test("supports remote navigation commands and parses app listing", async () => {
+  const app = createApp();
+  await app.elements.get("serialConnectButton").dispatch("click");
+
+  // Send TV connect
+  app.elements.get("tvHostInput").value = "192.168.178.21";
+  await app.elements.get("tvConnectButton").dispatch("click");
+  assert.equal(
+    new TextDecoder().decode(app.state.writes[app.state.writes.length - 1]),
+    "tv-connect 192.168.178.21\r\n"
+  );
+
+  // Trigger app query
+  await app.elements.get("tvFetchAppsButton").dispatch("click");
+  assert.equal(
+    new TextDecoder().decode(app.state.writes[app.state.writes.length - 1]),
+    "tv-app-list\r\n"
+  );
+
+  // Feed simulated package list output
+  const pkgOutput = new TextEncoder().encode(
+    "package:com.google.android.youtube.tv\r\npackage:com.tcl.tv\r\n\r\ntv>         "
+  );
+  app.state.controller.enqueue(pkgOutput);
+  await new Promise((resolve) => setTimeout(resolve, 20));
+
+  // Verify dropdown populated
+  const select = app.elements.get("tvAppSelect");
+  assert.equal(select.children.length, 3); // default + 2 packages
+  assert.equal(select.children[1].value, "com.google.android.youtube.tv");
+  assert.equal(select.children[2].value, "com.tcl.tv");
+
+  // Launch app
+  select.value = "com.google.android.youtube.tv";
+  await app.elements.get("tvLaunchAppButton").dispatch("click");
+  assert.equal(
+    new TextDecoder().decode(app.state.writes[app.state.writes.length - 1]),
+    "tv-app-launch com.google.android.youtube.tv\r\n"
+  );
+
+  // Stop app
+  await app.elements.get("tvStopAppButton").dispatch("click");
+  assert.equal(
+    new TextDecoder().decode(app.state.writes[app.state.writes.length - 1]),
+    "tv-app-stop com.google.android.youtube.tv\r\n"
+  );
+});

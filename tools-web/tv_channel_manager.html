@@ -140,6 +140,23 @@
       .toolbar-actions button { flex: 1; }
       .serial-command-row { align-items: stretch; flex-direction: column; }
     }
+
+    .remote-panel { margin-bottom: 16px; padding: 15px 16px; }
+    .remote-header strong { display: block; font-size: 15px; }
+    .remote-header span { display: block; margin-top: 4px; color: var(--muted); font-size: 13px; }
+    .remote-grid-layout { display: flex; flex-direction: column; gap: 14px; margin-top: 14px; }
+    .remote-group { display: flex; flex-direction: column; gap: 8px; }
+    .group-title { color: #becbd8; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+    .remote-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .remote-row input { flex: 1 1 200px; min-height: 38px; padding: 6px 10px; border: 1px solid #3b4857; border-radius: 7px; color: var(--ink); background: #121a23; }
+    .dpad-container { display: flex; flex-direction: column; align-items: center; gap: 10px; background: #131a22; padding: 12px; border-radius: 10px; border: 1px solid #283340; max-width: 440px; }
+    .dpad-grid { display: grid; grid-template-columns: repeat(3, 50px); grid-template-rows: repeat(3, 44px); gap: 6px; justify-content: center; }
+    .dpad-btn { font-size: 14px; font-weight: bold; }
+    .dpad-center { background: #1f3a52; color: #a5d2ff; }
+    .top-row, .nav-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
+    .remote-btn { min-height: 36px; padding: 6px 12px; font-size: 12px; }
+    .app-launcher-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .app-launcher-row select { flex: 1 1 260px; min-height: 38px; padding: 6px 10px; border: 1px solid #3b4857; border-radius: 7px; color: var(--ink); background: #121a23; }
   </style>
 </head>
 <body>
@@ -177,6 +194,70 @@
       <pre id="serialOutput" class="serial-output" aria-label="ESP32 serial console output" aria-live="polite">Console output will appear here after connecting.</pre>
       <span id="serialStatus" class="serial-status" role="status" aria-live="polite"></span>
       <p class="serial-help">Choose the ESP32's USB serial port in the browser prompt. The default baud rate is 115,200. Close any other serial monitor first. The TV export requires the Android TV ADB firmware, a connected TV (<code>tv-connect &lt;host&gt; [port]</code>), Android TV Companion 0.8.0, and its <code>READ_TV_LISTINGS</code> permission. The export request is read-only; it creates a CSV in the TV's Downloads folder and transfers it here over USB.</p>
+    </section>
+
+    <section class="panel remote-panel" aria-label="Android TV Remote & Controls">
+      <div class="remote-header">
+        <strong>Android TV Remote & App Controls</strong>
+        <span>Manage device connection, launch or stop TV apps, and control navigation via the ESP32.</span>
+      </div>
+
+      <div class="remote-grid-layout">
+        <div class="remote-group">
+          <span class="group-title">Target TV Connection</span>
+          <div class="remote-row">
+            <input id="tvHostInput" type="text" value="192.168.178.21" placeholder="TV IP (e.g. 192.168.1.50)" spellcheck="false" disabled>
+            <button id="tvConnectButton" type="button" disabled>Connect TV</button>
+            <button id="tvInfoButton" type="button" disabled>Device Info</button>
+            <button id="tvStatusButton" type="button" disabled>TV Status</button>
+          </div>
+        </div>
+
+        <div class="remote-group">
+          <span class="group-title">Virtual Remote Control</span>
+          <div class="dpad-container">
+            <div class="remote-row top-row">
+              <button type="button" class="remote-btn" data-tv-cmd="tv-key power" title="Power" disabled>⏻ Power</button>
+              <button type="button" class="remote-btn" data-tv-cmd="tv-key mute" title="Mute" disabled>🔇 Mute</button>
+              <button type="button" class="remote-btn" data-tv-cmd="tv-volume down 1" title="Volume Down" disabled>🔉 Vol -</button>
+              <button type="button" class="remote-btn" data-tv-cmd="tv-volume up 1" title="Volume Up" disabled>🔊 Vol +</button>
+            </div>
+
+            <div class="dpad-grid">
+              <div></div>
+              <button type="button" class="remote-btn dpad-btn" data-tv-cmd="tv-key up" title="Up" disabled>▲</button>
+              <div></div>
+              <button type="button" class="remote-btn dpad-btn" data-tv-cmd="tv-key left" title="Left" disabled>◀</button>
+              <button type="button" class="remote-btn dpad-btn dpad-center" data-tv-cmd="tv-key ok" title="OK / Select" disabled>OK</button>
+              <button type="button" class="remote-btn dpad-btn" data-tv-cmd="tv-key right" title="Right" disabled>▶</button>
+              <div></div>
+              <button type="button" class="remote-btn dpad-btn" data-tv-cmd="tv-key down" title="Down" disabled>▼</button>
+              <div></div>
+            </div>
+
+            <div class="remote-row nav-row">
+              <button type="button" class="remote-btn" data-tv-cmd="tv-key back" title="Back" disabled>↩ Back</button>
+              <button type="button" class="remote-btn" data-tv-cmd="tv-key home" title="Home" disabled>⌂ Home</button>
+              <button type="button" class="remote-btn" data-tv-cmd="tv-key menu" title="Menu" disabled>☰ Menu</button>
+              <button type="button" class="remote-btn" data-tv-cmd="tv-key play-pause" title="Play/Pause" disabled>⏯ Play</button>
+              <button type="button" class="remote-btn" data-tv-cmd="tv-key search" title="Search" disabled>🔍 Search</button>
+              <button type="button" class="remote-btn" data-tv-cmd="tv-key assistant" title="Assistant" disabled>🎙 Assist</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="remote-group">
+          <span class="group-title">Installed TV Apps</span>
+          <div class="app-launcher-row">
+            <select id="tvAppSelect" disabled>
+              <option value="">-- No apps discovered yet (Click 'Query Apps') --</option>
+            </select>
+            <button id="tvFetchAppsButton" type="button" disabled>Query Apps</button>
+            <button id="tvLaunchAppButton" class="primary" type="button" disabled>Launch</button>
+            <button id="tvStopAppButton" class="danger" type="button" disabled>Stop</button>
+          </div>
+        </div>
+      </div>
     </section>
 
     <section id="dropZone" class="panel load-panel drop-zone" aria-label="Load a CSV file">
@@ -301,6 +382,15 @@
         serialSendButton: document.getElementById("serialSendButton"),
         serialOutput: document.getElementById("serialOutput"),
         serialStatus: document.getElementById("serialStatus"),
+        tvHostInput: document.getElementById("tvHostInput"),
+        tvConnectButton: document.getElementById("tvConnectButton"),
+        tvInfoButton: document.getElementById("tvInfoButton"),
+        tvStatusButton: document.getElementById("tvStatusButton"),
+        tvAppSelect: document.getElementById("tvAppSelect"),
+        tvFetchAppsButton: document.getElementById("tvFetchAppsButton"),
+        tvLaunchAppButton: document.getElementById("tvLaunchAppButton"),
+        tvStopAppButton: document.getElementById("tvStopAppButton"),
+        remoteButtons: document.querySelectorAll ? Array.from(document.querySelectorAll(".remote-btn")) : [],
         tableWrap: document.querySelector(".table-wrap")
       };
 
@@ -340,6 +430,49 @@
         elements.serialCommand.disabled = !connected;
         elements.serialSendButton.disabled = !connected || serialExportInProgress;
         elements.serialClearButton.disabled = !hasSerialOutput;
+        if (elements.tvHostInput) elements.tvHostInput.disabled = !connected;
+        if (elements.tvConnectButton) elements.tvConnectButton.disabled = !connected || serialExportInProgress;
+        if (elements.tvInfoButton) elements.tvInfoButton.disabled = !connected || serialExportInProgress;
+        if (elements.tvStatusButton) elements.tvStatusButton.disabled = !connected || serialExportInProgress;
+        if (elements.tvAppSelect) elements.tvAppSelect.disabled = !connected || serialExportInProgress;
+        if (elements.tvFetchAppsButton) elements.tvFetchAppsButton.disabled = !connected || serialExportInProgress;
+        if (elements.tvLaunchAppButton) elements.tvLaunchAppButton.disabled = !connected || serialExportInProgress;
+        if (elements.tvStopAppButton) elements.tvStopAppButton.disabled = !connected || serialExportInProgress;
+        if (elements.remoteButtons) {
+          elements.remoteButtons.forEach((btn) => {
+            btn.disabled = !connected || serialExportInProgress;
+          });
+        }
+      }
+
+      const knownPackages = new Set();
+      function processAppListOutput(text) {
+        if (!elements.tvAppSelect) return;
+        let changed = false;
+        const matches = text.matchAll(/package:([a-zA-Z0-9._]+)[\r\n]/g);
+        for (const match of matches) {
+          const pkg = match[1];
+          if (!knownPackages.has(pkg)) {
+            knownPackages.add(pkg);
+            changed = true;
+          }
+        }
+        if (changed) {
+          const sorted = Array.from(knownPackages).sort();
+          const currentVal = elements.tvAppSelect.value;
+          elements.tvAppSelect.replaceChildren();
+          const defaultOpt = document.createElement("option");
+          defaultOpt.value = "";
+          defaultOpt.textContent = `-- Select an app (${sorted.length} discovered) --`;
+          elements.tvAppSelect.append(defaultOpt);
+          for (const pkg of sorted) {
+            const opt = document.createElement("option");
+            opt.value = pkg;
+            opt.textContent = pkg;
+            if (pkg === currentVal) opt.selected = true;
+            elements.tvAppSelect.append(opt);
+          }
+        }
       }
 
       function appendSerialOutput(text) {
@@ -348,6 +481,7 @@
         elements.serialOutput.textContent =
           `${elements.serialOutput.textContent}${text}`.slice(-MAX_SERIAL_OUTPUT_CHARS);
         elements.serialOutput.scrollTop = elements.serialOutput.scrollHeight;
+        processAppListOutput(text);
         updateSerialControls();
       }
 
@@ -1172,6 +1306,35 @@
         elements.serialOutput.textContent = "";
         hasSerialOutput = false;
         updateSerialControls();
+      });
+
+      elements.tvConnectButton?.addEventListener("click", () => {
+        const host = elements.tvHostInput?.value?.trim() || "192.168.178.21";
+        sendSerialCommand(`tv-connect ${host}`);
+      });
+      elements.tvInfoButton?.addEventListener("click", () => {
+        sendSerialCommand("tv-device-info");
+      });
+      elements.tvStatusButton?.addEventListener("click", () => {
+        sendSerialCommand("tv-status");
+      });
+      elements.tvFetchAppsButton?.addEventListener("click", () => {
+        sendSerialCommand("tv-app-list");
+      });
+      elements.tvLaunchAppButton?.addEventListener("click", () => {
+        const pkg = elements.tvAppSelect?.value;
+        if (pkg) sendSerialCommand(`tv-app-launch ${pkg}`);
+        else setSerialStatus("Select an app to launch first.", true);
+      });
+      elements.tvStopAppButton?.addEventListener("click", () => {
+        const pkg = elements.tvAppSelect?.value;
+        if (pkg) sendSerialCommand(`tv-app-stop ${pkg}`);
+        else setSerialStatus("Select an app to stop first.", true);
+      });
+      elements.remoteButtons?.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          if (btn.dataset?.tvCmd) sendSerialCommand(btn.dataset.tvCmd);
+        });
       });
       if (serialAvailable) {
         navigator.serial.addEventListener("disconnect", (event) => {
