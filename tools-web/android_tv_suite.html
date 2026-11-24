@@ -258,13 +258,13 @@
     .load-actions { display: flex; flex-wrap: wrap; gap: 8px; }
     .drop-zone { border: 1px dashed #596f84; background: #17212c; }
     .drop-zone.drag-over { border-color: var(--blue); background: var(--focus); }
-    .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-top: 12px; }
+    .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 12px; }
     .stat { min-width: 0; padding: 12px 14px; }
     .stat strong { display: block; font-size: 22px; line-height: 1.15; font-variant-numeric: tabular-nums; }
     .stat span { display: block; margin-top: 4px; color: var(--muted); font-size: 12px; }
     .stat.warning strong { color: #ffb36b; }
 
-    .workspace { margin-top: 16px; overflow: hidden; }
+    .workspace { margin-top: 0; overflow: hidden; }
     .toolbar { display: flex; align-items: end; flex-wrap: wrap; gap: 12px; padding: 14px 16px; border-bottom: 1px solid var(--line); }
     .field { display: flex; flex: 1 1 210px; flex-direction: column; gap: 5px; }
     .field.compact { flex: 0 1 205px; }
@@ -609,32 +609,6 @@
     <div class="suite-layout">
       <!-- MAIN CONTENT: CHANNEL MANAGER -->
       <div class="main-content">
-        <section id="dropZone" class="panel load-panel drop-zone" aria-label="Load a CSV file">
-          <div class="load-copy">
-            <strong>Channel list actions</strong>
-            <span>Export channels from your connected TV over USB, or load a local CSV file.</span>
-          </div>
-          <div class="load-actions">
-            <button id="serialExportButton" class="btn-icon primary" type="button" title="Read TV channel list over USB" aria-label="Read TV channel list" disabled>
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-              <span class="btn-label">Read TV channel list</span>
-            </button>
-            <button id="openButton" class="btn-icon" type="button" title="Open local CSV file" aria-label="Open CSV">
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2z"/></svg>
-              <span class="btn-label">Open CSV</span>
-            </button>
-            <button id="exportButton" class="btn-icon" type="button" title="Download CSV draft" aria-label="Download CSV draft" disabled>
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-              <span class="btn-label">Download CSV draft</span>
-            </button>
-            <button id="resetButton" class="btn-icon" type="button" title="Reset draft" aria-label="Reset draft" disabled>
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><polyline points="3 3 3 8 8 8"/></svg>
-              <span class="btn-label">Reset draft</span>
-            </button>
-          </div>
-          <input id="fileInput" class="hidden" type="file" accept=".csv,text/csv">
-        </section>
-
         <section id="summary" class="summary hidden" aria-label="CSV summary" aria-live="polite">
           <article class="panel stat"><strong id="statRows">0</strong><span>Channel rows</span></article>
           <article class="panel stat"><strong id="statUnnumbered">0</strong><span>missing channel number</span></article>
@@ -643,7 +617,7 @@
           <article id="duplicateStat" class="panel stat"><strong id="statDuplicates">0</strong><span>duplicate numbers per input</span></article>
         </section>
 
-        <section class="panel workspace" aria-label="Channel list">
+        <section id="dropZone" class="panel workspace" aria-label="Channel list">
           <div class="toolbar">
             <div class="field">
               <label for="searchInput">Search channel list</label>
@@ -660,10 +634,24 @@
             </div>
             <div class="field compact" style="flex: 0 0 auto;">
               <label>&nbsp;</label>
-              <button id="toggleRemoteBtn" class="btn-icon" type="button" title="Toggle Remote Control sidebar">
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="2" width="12" height="20" rx="3"/><circle cx="12" cy="7" r="1.5" fill="currentColor"/><polyline points="10 13 14 13"/><polyline points="12 11 12 15"/><circle cx="12" cy="18" r="1" fill="currentColor"/></svg>
-                <span>Remote</span>
-              </button>
+              <div class="toolbar-actions" style="display: flex; gap: 6px; align-items: center;">
+                <input id="fileInput" class="hidden" type="file" accept=".csv,text/csv">
+                <button id="serialExportButton" class="btn-icon primary" type="button" title="Read TV channel list over USB (tv-export)" aria-label="Read TV channel list" disabled>
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                </button>
+                <button id="openButton" class="btn-icon" type="button" title="Open local CSV file" aria-label="Open CSV">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2z"/></svg>
+                </button>
+                <button id="exportButton" class="btn-icon" type="button" title="Download CSV draft" aria-label="Download CSV draft" disabled>
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                </button>
+                <button id="resetButton" class="btn-icon" type="button" title="Reset draft" aria-label="Reset draft" disabled>
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><polyline points="3 3 3 8 8 8"/></svg>
+                </button>
+                <button id="toggleRemoteBtn" class="btn-icon" type="button" title="Toggle TV Remote Sidebar" aria-label="Toggle Remote">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="2" width="12" height="20" rx="3"/><circle cx="12" cy="7" r="1.5" fill="currentColor"/><polyline points="10 13 14 13"/><polyline points="12 11 12 15"/><circle cx="12" cy="18" r="1" fill="currentColor"/></svg>
+                </button>
+              </div>
             </div>
             <div class="toolbar-info">Click ▶ on any channel (or double-click) to tune the TV instantly. Drag rows or use ↑/↓ to change draft order.</div>
           </div>
