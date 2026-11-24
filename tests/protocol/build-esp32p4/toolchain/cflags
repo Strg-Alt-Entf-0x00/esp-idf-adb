@@ -1,0 +1,4 @@
+-mabi=ilp32f
+-march=rv32imafc_zicsr_zifencei_zaamo_zalrsc_xesploop_xespv2p1
+-mtune=esp-base
+"-specs=D:/github-repositorys/ESP32/projects-dev/esp-idf-adb/test_apps/protocol/build-esp32p4/specs/picolibc.specs"

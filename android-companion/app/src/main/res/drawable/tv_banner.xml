@@ -1,0 +1,27 @@
+<!-- The 16:9 vector is intentionally larger than the generic icon-size lint threshold. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="VectorRaster"
+    android:width="320dp"
+    android:height="180dp"
+    android:viewportWidth="320"
+    android:viewportHeight="180">
+    <path
+        android:fillColor="#101418"
+        android:pathData="M0,0h320v180H0z" />
+    <path
+        android:fillColor="#78D7CE"
+        android:pathData="M32,47h112v76H32z" />
+    <path
+        android:fillColor="#182126"
+        android:pathData="M38,53h100v64H38z" />
+    <path
+        android:fillColor="#78D7CE"
+        android:pathData="M79,123h18v9h-18zM64,132h48v6h-48zM42,27l39,24h-17L33,36zM133,27L94,51h17l31,-15z" />
+    <path
+        android:fillColor="#E7EDF0"
+        android:pathData="M54,69h69v5H54zM54,83h52v5H54zM54,97h61v5H54z" />
+    <path
+        android:fillColor="#78D7CE"
+        android:pathData="M174,58h108v8H174zM174,82h82v8H174zM174,106h96v8H174z" />
+</vector>

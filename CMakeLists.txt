@@ -1,0 +1,16 @@
+idf_component_register(
+    SRCS
+        "src/esp_adb.c"
+        "src/adb_auth.c"
+        "src/adb_protocol.c"
+    INCLUDE_DIRS
+        "include"
+    PRIV_INCLUDE_DIRS
+        "src"
+    REQUIRES
+        esp_common
+    PRIV_REQUIRES
+        freertos
+        lwip
+        mbedtls
+)

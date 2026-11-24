@@ -1,0 +1,31 @@
+# ============================================================================
+# ESP32-P4 Hardware Target Configuration
+# ============================================================================
+CONFIG_IDF_TARGET="esp32p4"
+CONFIG_ESP32P4_SELECTS_REV_LESS_V3=y
+
+# ============================================================================
+# Flash Size Configuration
+# ============================================================================
+CONFIG_ESPTOOLPY_FLASHSIZE_32MB=y
+
+# ============================================================================
+# ESP32-C6 Wi-Fi coprocessor (Waveshare ESP32-P4-WIFI6)
+# ============================================================================
+CONFIG_ESP_HOSTED=y
+CONFIG_ESP_HOSTED_AUTO_CALL_INIT_BEFORE_APP_MAIN=y
+CONFIG_ESP_HOSTED_CP_TARGET_ESP32C6=y
+CONFIG_ESP_HOSTED_CP_TARGET_FROM_WIFI_REMOTE=y
+CONFIG_ESP_HOSTED_HOST_AUTO_FEAT_INIT=y
+CONFIG_ESP_HOSTED_HOST_FEAT_RPC=y
+CONFIG_ESP_HOSTED_HOST_FEAT_RPC_EXT_V2=y
+CONFIG_ESP_HOSTED_HOST_FEAT_WIFI=y
+CONFIG_ESP_HOSTED_HOST_FEAT_WIFI_AUTO_INIT=y
+CONFIG_ESP_HOSTED_IDF_SLAVE_TARGET="esp32c6"
+CONFIG_ESP_HOSTED_P4_DEV_BOARD_FUNC_BOARD=y
+
+# ============================================================================
+# mbedTLS Configuration
+# ============================================================================
+CONFIG_MBEDTLS_RSA_C=y
+CONFIG_MBEDTLS_SHA1_C=y

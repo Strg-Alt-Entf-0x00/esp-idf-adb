@@ -1,0 +1,13 @@
+# Target labels
+ bootloader
+# Source files and their labels
+D:/github-repositorys/ESP32/projects-dev/esp-idf-adb/test_apps/protocol/build-esp32/CMakeFiles/bootloader
+D:/github-repositorys/ESP32/projects-dev/esp-idf-adb/test_apps/protocol/build-esp32/CMakeFiles/bootloader.rule
+D:/github-repositorys/ESP32/projects-dev/esp-idf-adb/test_apps/protocol/build-esp32/CMakeFiles/bootloader-complete.rule
+D:/github-repositorys/ESP32/projects-dev/esp-idf-adb/test_apps/protocol/build-esp32/bootloader-prefix/src/bootloader-stamp/bootloader-build.rule
+D:/github-repositorys/ESP32/projects-dev/esp-idf-adb/test_apps/protocol/build-esp32/bootloader-prefix/src/bootloader-stamp/bootloader-configure.rule
+D:/github-repositorys/ESP32/projects-dev/esp-idf-adb/test_apps/protocol/build-esp32/bootloader-prefix/src/bootloader-stamp/bootloader-download.rule
+D:/github-repositorys/ESP32/projects-dev/esp-idf-adb/test_apps/protocol/build-esp32/bootloader-prefix/src/bootloader-stamp/bootloader-install.rule
+D:/github-repositorys/ESP32/projects-dev/esp-idf-adb/test_apps/protocol/build-esp32/bootloader-prefix/src/bootloader-stamp/bootloader-mkdir.rule
+D:/github-repositorys/ESP32/projects-dev/esp-idf-adb/test_apps/protocol/build-esp32/bootloader-prefix/src/bootloader-stamp/bootloader-patch.rule
+D:/github-repositorys/ESP32/projects-dev/esp-idf-adb/test_apps/protocol/build-esp32/bootloader-prefix/src/bootloader-stamp/bootloader-update.rule

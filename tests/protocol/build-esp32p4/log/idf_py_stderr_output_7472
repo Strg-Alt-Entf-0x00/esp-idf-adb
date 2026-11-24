@@ -1,0 +1,43 @@
+Command: cmake -G Ninja -B D:\github-repositorys\ESP32\projects-dev\esp-idf-adb\test_apps\protocol\build-esp32p4 -DPYTHON_DEPS_CHECKED=1 -DPYTHON=C:\Espressif\tools\python\v6.0.2\venv\Scripts\python.exe -DESP_PLATFORM=1 -DSDKCONFIG=D:\github-repositorys\ESP32\projects-dev\esp-idf-adb\test_apps\protocol\build-esp32p4\sdkconfig -DIDF_TARGET=esp32p4 -DCCACHE_ENABLE=False D:\github-repositorys\ESP32\projects-dev\esp-idf-adb\test_apps\protocol
+Loading defaults file D:/github-repositorys/ESP32/projects-dev/esp-idf-adb/test_apps/protocol/sdkconfig.defaults...
+C:\Users\Ghost\AppData\Local\Temp\kconfgen_tmpbqbjn0oq:6 line was updated to # ============================================================================n
+C:\Users\Ghost\AppData\Local\Temp\kconfgen_tmpbqbjn0oq:8 line was updated to # ============================================================================n
+Loading defaults file D:/github-repositorys/ESP32/projects-dev/esp-idf-adb/test_apps/protocol/sdkconfig.defaults.esp32p4...
+Loading defaults file D:/github-repositorys/ESP32/projects-dev/esp-idf-adb/test_apps/protocol/sdkconfig.defaults.esp32p4...
+Configuration Report                                                           
++-----------------------------------------------------------------------------+
+|  Parser Version: 1                                                          |
+|  Verbosity: default                                                         |
+|  Defaults policy: sdkconfig                                                 |
+|  Status: Finished with notifications                                        |
+|                                                                             |
+| Miscellaneous                                                               |
+| +-------------------------------------------------------------------------+ |
+| | * BT_NIMBLE_MESH_PROVISIONER (defined at                                | |
+| | C:/esp/v6.0.2/esp-idf/components/bt/host/nimble/Kconfig.in:1421):       | |
+| | 'default 0' is not a valid bool value (only 'y' and 'n' are allowed).   | |
+| | Value is treated as 'n'.                                                | |
+| | * FATFS_PRINT_LLI (defined at                                           | |
+| | C:/esp/v6.0.2/esp-idf/components/fatfs/Kconfig:230): 'default 0' is not | |
+| | a valid bool value (only 'y' and 'n' are allowed). Value is treated as  | |
+| | 'n'.                                                                    | |
+| | * FATFS_PRINT_FLOAT (defined at                                         | |
+| | C:/esp/v6.0.2/esp-idf/components/fatfs/Kconfig:235): 'default 0' is not | |
+| | a valid bool value (only 'y' and 'n' are allowed). Value is treated as  | |
+| | 'n'.                                                                    | |
+| +-------------------------------------------------------------------------+ |
++-----------------------------------------------------------------------------+
+CMake Warning at C:/esp/v6.0.2/esp-idf/tools/cmake/component_validation.cmake:122 (message):
+  Private include directory
+  'D:/github-repositorys/ESP32/projects-dev/esp-idf-adb/src' belongs to
+  component esp-idf-adb but is being used by component main.  It is
+  recommended to define the component dependency for main on the component
+  esp-idf-adb, i.e.  'idf_component_register(...  PRIV_REQUIRES esp-idf-adb)'
+  in the CMakeLists.txt of main, and specify the included directory as
+  idf_component_register(...  PRIV_INCLUDE_DIRS <dir relative to component>)
+  in the CMakeLists.txt of component esp-idf-adb.
+Call Stack (most recent call first):
+  C:/esp/v6.0.2/esp-idf/tools/cmake/component_validation.cmake:147 (__component_validation_check_include_dirs)
+  C:/esp/v6.0.2/esp-idf/CMakeLists.txt:349 (__component_validation_run_checks)
+
+

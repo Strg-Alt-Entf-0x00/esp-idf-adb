@@ -1,0 +1,12 @@
+# ESP-IDF sdkconfig defaults
+# Example: esp-idf-adb / test_apps/protocol
+# Hardware-specific options must match the target board and ESP-IDF version.
+# Entries and values are preserved; sections are ordered for easier review.
+
+# ============================================================================
+# mbedTLS Configuration (Required for ADB Authentication)
+# ============================================================================
+CONFIG_MBEDTLS_RSA_C=y
+CONFIG_MBEDTLS_SHA1_C=y
+CONFIG_ESP_MAIN_TASK_STACK_SIZE=8192
+CONFIG_LWIP_NETIF_LOOPBACK=y

@@ -1,0 +1,1217 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'none'; img-src 'none'; base-uri 'none'; form-action 'none'; object-src 'none'">
+  <meta name="referrer" content="no-referrer">
+  <title>TV Channel Manager</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      font-family: "Segoe UI", system-ui, sans-serif;
+      color: #e5edf5;
+      background: #10151c;
+      font-synthesis: none;
+      text-rendering: optimizeLegibility;
+      --ink: #e5edf5;
+      --muted: #9aa8b7;
+      --line: #303b48;
+      --blue: #3184cf;
+      --blue-dark: #2469a8;
+      --panel: #1a232e;
+      --focus: #172a3d;
+    }
+
+    * { box-sizing: border-box; }
+
+    body { margin: 0; min-width: 360px; }
+
+    button, input, select { font: inherit; }
+
+    button {
+      min-height: 38px;
+      padding: 8px 13px;
+      border: 1px solid #3b4857;
+      border-radius: 7px;
+      color: var(--ink);
+      background: #222c38;
+      cursor: pointer;
+    }
+
+    button:hover:not(:disabled) { background: #2b3948; border-color: #63778b; }
+    button:focus-visible, input:focus-visible, select:focus-visible, [tabindex]:focus-visible {
+      outline: 3px solid #69b4ff;
+      outline-offset: 2px;
+    }
+    button:disabled { cursor: not-allowed; opacity: .55; }
+    button.primary { color: #fff; background: var(--blue); border-color: var(--blue); }
+    button.primary:hover:not(:disabled) { background: var(--blue-dark); }
+    button.danger { color: #ff9999; }
+
+    .shell { max-width: 1600px; margin: 0 auto; padding: 24px clamp(14px, 3vw, 42px) 30px; }
+    .topline { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; }
+    h1 { margin: 0; font-size: clamp(25px, 3vw, 34px); letter-spacing: -.035em; }
+    .intro { margin: 7px 0 0; color: var(--muted); }
+    .local-badge { flex: 0 0 auto; padding: 7px 11px; border: 1px solid #315b42; border-radius: 999px; background: #16271d; color: #a7dfb7; font-size: 13px; font-weight: 650; }
+
+    .notice {
+      margin: 20px 0 16px;
+      padding: 12px 15px;
+      border: 1px solid #75602f;
+      border-radius: 9px;
+      background: #2a2417;
+      color: #e6d39e;
+      line-height: 1.5;
+    }
+
+    .notice strong { color: #ffe3a2; }
+    .notice p { margin: 3px 0 0; }
+
+    .panel { border: 1px solid var(--line); border-radius: 12px; background: var(--panel); box-shadow: 0 3px 14px #00000020; }
+    .serial-panel { margin-bottom: 16px; padding: 15px 16px; }
+    .serial-heading strong { display: block; }
+    .serial-heading span { display: block; margin-top: 4px; color: var(--muted); font-size: 13px; line-height: 1.45; }
+    .serial-controls { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .serial-command-row { display: flex; align-items: end; gap: 8px; margin-top: 12px; }
+    .serial-command-row label { display: flex; flex: 1; flex-direction: column; gap: 5px; color: #becbd8; font-size: 12px; font-weight: 700; }
+    .serial-command-row input { width: 100%; min-height: 39px; padding: 8px 10px; border: 1px solid #3b4857; border-radius: 7px; color: var(--ink); background: #121a23; }
+    .serial-output { min-height: 90px; max-height: 280px; margin: 12px 0 0; padding: 12px; overflow: auto; border: 1px solid #303b48; border-radius: 8px; background: #0c1117; color: #d7e2ed; font: 12px/1.5 Consolas, "Cascadia Mono", monospace; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .serial-status { display: block; min-height: 18px; margin-top: 7px; color: var(--muted); font-size: 12px; }
+    .serial-help { margin: 7px 0 0; color: var(--muted); font-size: 12px; line-height: 1.5; }
+    .serial-help code { color: #c8d8e9; }
+    .load-panel { display: flex; align-items: center; gap: 14px; padding: 14px 16px; }
+    .load-copy { flex: 1; min-width: 180px; }
+    .load-copy strong { display: block; }
+    .load-copy span { display: block; margin-top: 3px; color: var(--muted); font-size: 13px; }
+    .load-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+    .drop-zone { border: 1px dashed #596f84; background: #17212c; }
+    .drop-zone.drag-over { border-color: var(--blue); background: var(--focus); }
+    .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-top: 12px; }
+    .stat { min-width: 0; padding: 12px 14px; }
+    .stat strong { display: block; font-size: 22px; line-height: 1.15; font-variant-numeric: tabular-nums; }
+    .stat span { display: block; margin-top: 4px; color: var(--muted); font-size: 12px; }
+    .stat.warning strong { color: #ffb36b; }
+
+    .workspace { margin-top: 16px; overflow: hidden; }
+    .toolbar { display: flex; align-items: end; flex-wrap: wrap; gap: 12px; padding: 14px 16px; border-bottom: 1px solid var(--line); }
+    .field { display: flex; flex: 1 1 210px; flex-direction: column; gap: 5px; }
+    .field.compact { flex: 0 1 205px; }
+    .field label { color: #becbd8; font-size: 12px; font-weight: 700; }
+    .field input, .field select {
+      width: 100%; min-height: 39px; padding: 8px 10px;
+      border: 1px solid #3b4857; border-radius: 7px; color: var(--ink); background: #121a23;
+    }
+    .toolbar-actions { display: flex; gap: 8px; }
+    .toolbar-info { flex: 1 0 100%; color: var(--muted); font-size: 12px; }
+
+    .table-wrap { max-height: min(66vh, 760px); min-height: 230px; overflow: auto; }
+    table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13px; }
+    thead { position: sticky; z-index: 2; top: 0; }
+    th { padding: 10px 11px; border-bottom: 1px solid var(--line); background: #232e3a; color: #d7e1eb; text-align: left; white-space: nowrap; }
+    td { max-width: 340px; padding: 7px 11px; border-bottom: 1px solid #2b3541; vertical-align: middle; }
+    tbody tr:hover { background: #202c38; }
+    tbody tr.dragging { opacity: .4; }
+    tbody tr.drop-target td { box-shadow: inset 0 2px 0 var(--blue); }
+    .order-cell { width: 105px; white-space: nowrap; color: var(--muted); }
+    .order-cell button { min-width: 30px; min-height: 29px; padding: 2px 7px; }
+    .cell-text { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    td.editable { cursor: text; }
+    td.editable:hover { background: #243444; box-shadow: inset 0 0 0 1px #49647d; }
+    td input.cell-editor { width: 100%; min-width: 90px; min-height: 32px; padding: 4px 6px; border: 1px solid var(--blue); border-radius: 4px; }
+    .empty { padding: 48px 20px; color: var(--muted); text-align: center; }
+    .empty strong { display: block; margin-bottom: 7px; color: #d7e1eb; font-size: 16px; }
+
+    .table-footer { display: flex; align-items: center; gap: 14px; padding: 10px 16px; border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; }
+    .statusbar { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; padding: 11px 3px 0; color: var(--muted); font-size: 12px; }
+    .statusbar [role="status"] { color: #bdc9d5; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+    .hidden { display: none !important; }
+
+    @media (max-width: 760px) {
+      .shell { padding-top: 16px; }
+      .topline { flex-direction: column; gap: 10px; }
+      .load-panel { align-items: flex-start; flex-direction: column; }
+      .load-actions { width: 100%; }
+      .load-actions button { flex: 1 1 auto; }
+      .toolbar { align-items: stretch; }
+      .field, .field.compact { flex-basis: 100%; }
+      .toolbar-actions { width: 100%; }
+      .toolbar-actions button { flex: 1; }
+      .serial-command-row { align-items: stretch; flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="topline">
+      <div>
+        <h1>TV Channel Manager</h1>
+        <p class="intro">Review and organize your TV channel list in a local draft.</p>
+      </div>
+      <span class="local-badge">Local-first · Optional USB serial</span>
+    </header>
+
+    <section class="notice" aria-label="Important notice">
+      <strong>CSV edits stay on this PC and are never uploaded.</strong>
+      <p>The optional serial console can send commands to ESP32 firmware; supported commands may control a TV over ADB. Review commands before sending. This page does not connect directly to ADB, and a downloaded CSV is not a TV import format.</p>
+    </section>
+
+    <section class="panel serial-panel" aria-label="ESP32 serial console">
+      <div class="serial-heading">
+        <strong>ESP32 console over USB serial</strong>
+        <span>Connect to the ESP32's UART console to send firmware CLI commands. The browser does not open a direct connection to the TV.</span>
+      </div>
+      <div class="serial-controls">
+        <button id="serialConnectButton" class="primary" type="button">Connect to ESP32</button>
+        <button id="serialExportButton" type="button" disabled>Read TV channel list</button>
+        <button id="serialDisconnectButton" type="button" disabled>Disconnect</button>
+        <button id="serialClearButton" type="button" disabled>Clear output</button>
+      </div>
+      <div class="serial-command-row">
+        <label for="serialCommand">Console command
+          <input id="serialCommand" type="text" maxlength="512" placeholder="Type help to list commands" autocomplete="off" spellcheck="false" disabled>
+        </label>
+        <button id="serialSendButton" type="button" disabled>Send command</button>
+      </div>
+      <pre id="serialOutput" class="serial-output" aria-label="ESP32 serial console output" aria-live="polite">Console output will appear here after connecting.</pre>
+      <span id="serialStatus" class="serial-status" role="status" aria-live="polite"></span>
+      <p class="serial-help">Choose the ESP32's USB serial port in the browser prompt. The default baud rate is 115,200. Close any other serial monitor first. The TV export requires the Android TV ADB firmware, a connected TV (<code>tv-connect &lt;host&gt; [port]</code>), Android TV Companion 0.8.0, and its <code>READ_TV_LISTINGS</code> permission. The export request is read-only; it creates a CSV in the TV's Downloads folder and transfers it here over USB.</p>
+    </section>
+
+    <section id="dropZone" class="panel load-panel drop-zone" aria-label="Load a CSV file">
+      <div class="load-copy">
+        <strong>Load channel list</strong>
+        <span>Drop a TV CSV exported by the PC manager here, or choose a file.</span>
+      </div>
+      <div class="load-actions">
+        <button id="openButton" class="primary" type="button">Open CSV</button>
+        <button id="exportButton" type="button" disabled>Download CSV draft</button>
+        <button id="resetButton" type="button" disabled>Reset draft</button>
+      </div>
+      <input id="fileInput" class="hidden" type="file" accept=".csv,text/csv">
+    </section>
+
+    <section id="summary" class="summary hidden" aria-label="CSV summary" aria-live="polite">
+      <article class="panel stat"><strong id="statRows">0</strong><span>Channel rows</span></article>
+      <article class="panel stat"><strong id="statUnnumbered">0</strong><span>missing channel number</span></article>
+      <article class="panel stat"><strong id="statUnnamed">0</strong><span>missing channel name</span></article>
+      <article class="panel stat"><strong id="statDotNames">0</strong><span>dot-like channel names</span></article>
+      <article id="duplicateStat" class="panel stat"><strong id="statDuplicates">0</strong><span>duplicate numbers per input</span></article>
+    </section>
+
+    <section class="panel workspace" aria-label="Channel list">
+      <div class="toolbar">
+        <div class="field">
+          <label for="searchInput">Search channel list</label>
+          <input id="searchInput" type="search" placeholder="Name, number, type, or TV input" disabled>
+        </div>
+        <div class="field compact">
+          <label for="sortSelect">Sort view</label>
+          <select id="sortSelect" disabled>
+            <option value="manual">Draft order</option>
+            <option value="number">Channel number</option>
+            <option value="name">Channel name</option>
+            <option value="broadcast">Broadcast type</option>
+          </select>
+        </div>
+        <div class="toolbar-info">Sorting changes the view only. To change the draft order, select “Draft order” and drag rows or use the arrow buttons.</div>
+      </div>
+
+      <div class="table-wrap">
+        <table aria-describedby="tableHelp">
+          <caption class="sr-only">TV channel rows from a local CSV file</caption>
+          <thead>
+            <tr>
+              <th class="order-cell" scope="col">Draft order</th>
+              <th scope="col">Channel number</th>
+              <th scope="col">Channel name</th>
+              <th scope="col">Broadcast type</th>
+              <th scope="col">Service type</th>
+              <th scope="col">Visibility</th>
+              <th scope="col">Browsable</th>
+              <th scope="col">Locked</th>
+              <th scope="col">TV input / input ID</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            <tr><td class="empty" colspan="9"><strong>No channel list loaded</strong>Open a CSV file or drop it in the area above.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="table-footer">
+        <span id="tableCount">No data loaded</span>
+      </div>
+    </section>
+
+    <footer class="statusbar">
+      <span id="tableHelp">Double-click a channel number or name to edit it. Changes stay on this PC.</span>
+      <span id="status" role="status" aria-live="polite">Ready. This page makes no network requests.</span>
+    </footer>
+  </main>
+
+  <script>
+    "use strict";
+
+    (() => {
+      const MAX_FILE_BYTES = 50 * 1024 * 1024;
+      const MAX_ROWS = 20000;
+      const MAX_COLUMNS = 64;
+      const MAX_CELL_LENGTH = 1000000;
+      const SERIAL_BAUD_RATE = 115200;
+      const MAX_SERIAL_OUTPUT_CHARS = 200000;
+      const MAX_TV_EXPORT_CSV_BYTES = 1024 * 1024;
+      const SERIAL_BEGIN_PREFIX = new TextEncoder().encode("TVCSV_BEGIN:");
+      const REQUIRED_COLUMNS = ["channel_number", "channel_name", "input_id"];
+      const COLUMNS = [
+        ["channel_number", "Channel number"],
+        ["channel_name", "Channel name"],
+        ["broadcast_type", "Broadcast type"],
+        ["service_type", "Service type"],
+        ["broadcast_visibility_type", "Visibility"],
+        ["browsable", "Browsable"],
+        ["locked", "Locked"],
+        ["input_id", "TV input / input ID"]
+      ];
+
+      const elements = {
+        dropZone: document.getElementById("dropZone"),
+        summary: document.getElementById("summary"),
+        statRows: document.getElementById("statRows"),
+        statUnnumbered: document.getElementById("statUnnumbered"),
+        statUnnamed: document.getElementById("statUnnamed"),
+        statDotNames: document.getElementById("statDotNames"),
+        statDuplicates: document.getElementById("statDuplicates"),
+        duplicateStat: document.getElementById("duplicateStat"),
+        openButton: document.getElementById("openButton"),
+        exportButton: document.getElementById("exportButton"),
+        resetButton: document.getElementById("resetButton"),
+        fileInput: document.getElementById("fileInput"),
+        searchInput: document.getElementById("searchInput"),
+        sortSelect: document.getElementById("sortSelect"),
+        tableBody: document.getElementById("tableBody"),
+        tableCount: document.getElementById("tableCount"),
+        status: document.getElementById("status"),
+        serialConnectButton: document.getElementById("serialConnectButton"),
+        serialExportButton: document.getElementById("serialExportButton"),
+        serialDisconnectButton: document.getElementById("serialDisconnectButton"),
+        serialClearButton: document.getElementById("serialClearButton"),
+        serialCommand: document.getElementById("serialCommand"),
+        serialSendButton: document.getElementById("serialSendButton"),
+        serialOutput: document.getElementById("serialOutput"),
+        serialStatus: document.getElementById("serialStatus"),
+        tableWrap: document.querySelector(".table-wrap")
+      };
+
+      let table = null;
+      let originalRows = [];
+      let draggingRow = null;
+      let serialPort = null;
+      let serialReader = null;
+      let serialReadTask = null;
+      let hasSerialOutput = false;
+      let serialConsoleDecoder = new TextDecoder();
+      let serialFrameBuffer = new Uint8Array();
+      let serialCsvTransfer = null;
+      let serialExportInProgress = false;
+      let serialExportTimeout = null;
+      const serialAvailable = "serial" in navigator;
+
+      function setStatus(message, isError = false) {
+        elements.status.textContent = message;
+        elements.status.style.color = isError ? "#ff9999" : "";
+      }
+
+      function formatNumber(value) {
+        return new Intl.NumberFormat(navigator.language).format(value);
+      }
+
+      function setSerialStatus(message, isError = false) {
+        elements.serialStatus.textContent = message;
+        elements.serialStatus.style.color = isError ? "#ff9999" : "";
+      }
+
+      function updateSerialControls() {
+        const connected = serialPort !== null;
+        elements.serialConnectButton.disabled = !serialAvailable || connected;
+        elements.serialExportButton.disabled = !connected || serialExportInProgress;
+        elements.serialDisconnectButton.disabled = !connected;
+        elements.serialCommand.disabled = !connected;
+        elements.serialSendButton.disabled = !connected || serialExportInProgress;
+        elements.serialClearButton.disabled = !hasSerialOutput;
+      }
+
+      function appendSerialOutput(text) {
+        if (!text) return;
+        hasSerialOutput = true;
+        elements.serialOutput.textContent =
+          `${elements.serialOutput.textContent}${text}`.slice(-MAX_SERIAL_OUTPUT_CHARS);
+        elements.serialOutput.scrollTop = elements.serialOutput.scrollHeight;
+        updateSerialControls();
+      }
+
+      function joinBytes(first, second) {
+        if (!first.length) return second.slice();
+        if (!second.length) return first.slice();
+        const joined = new Uint8Array(first.length + second.length);
+        joined.set(first);
+        joined.set(second, first.length);
+        return joined;
+      }
+
+      function findBytes(haystack, needle, start = 0) {
+        for (let index = start; index <= haystack.length - needle.length; index += 1) {
+          let matches = true;
+          for (let offset = 0; offset < needle.length; offset += 1) {
+            if (haystack[index + offset] !== needle[offset]) {
+              matches = false;
+              break;
+            }
+          }
+          if (matches) return index;
+        }
+        return -1;
+      }
+
+      function startsWithBytes(value, prefix) {
+        if (value.length < prefix.length) return false;
+        for (let index = 0; index < prefix.length; index += 1) {
+          if (value[index] !== prefix[index]) return false;
+        }
+        return true;
+      }
+
+      function hasPartialBytePrefix(value, prefix) {
+        const length = Math.min(value.length, prefix.length - 1);
+        if (length === 0 || value.length >= prefix.length) return false;
+        for (let index = 0; index < length; index += 1) {
+          if (value[index] !== prefix[index]) return false;
+        }
+        return true;
+      }
+
+      function findPotentialBytes(value, pattern) {
+        const complete = findBytes(value, pattern);
+        if (complete >= 0) return complete;
+        const firstCandidate = Math.max(0, value.length - pattern.length + 1);
+        for (let index = firstCandidate; index < value.length; index += 1) {
+          let matches = true;
+          for (let offset = 0; index + offset < value.length; offset += 1) {
+            if (value[index + offset] !== pattern[offset]) {
+              matches = false;
+              break;
+            }
+          }
+          if (matches) return index;
+        }
+        return -1;
+      }
+
+      function appendConsoleBytes(bytes) {
+        if (bytes.length) appendSerialOutput(serialConsoleDecoder.decode(bytes, { stream: true }));
+      }
+
+      function clearSerialExportTimeout() {
+        if (serialExportTimeout !== null) {
+          window.clearTimeout(serialExportTimeout);
+          serialExportTimeout = null;
+        }
+      }
+
+      function finishSerialExport(message, isError = false) {
+        clearSerialExportTimeout();
+        serialExportInProgress = false;
+        serialCsvTransfer = null;
+        updateSerialControls();
+        setSerialStatus(message, isError);
+      }
+
+      function armSerialExportTimeout(milliseconds, message) {
+        clearSerialExportTimeout();
+        serialExportTimeout = window.setTimeout(() => {
+          finishSerialExport(message, true);
+        }, milliseconds);
+      }
+
+      function startSerialExport() {
+        serialExportInProgress = true;
+        updateSerialControls();
+        setSerialStatus("Waiting for the ESP32 to prepare the TV channel export…");
+        armSerialExportTimeout(60000, "Timed out waiting for the ESP32 export response.");
+      }
+
+      function importSerialCsv(transfer) {
+        const bytes = new Uint8Array(transfer.expectedBytes);
+        let offset = 0;
+        for (const chunk of transfer.chunks) {
+          bytes.set(chunk, offset);
+          offset += chunk.length;
+        }
+        if (offset !== transfer.expectedBytes) {
+          finishSerialExport("The received channel CSV was incomplete.", true);
+          return;
+        }
+        try {
+          const csvText = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+          const loaded = parseCsv(csvText);
+          activateTable(loaded, "tv-channel-list-from-esp32.csv");
+          setStatus(`Loaded ${formatNumber(loaded.rows.length)} channel rows from the connected TV.`);
+          finishSerialExport("TV channel list received and loaded.");
+        } catch (error) {
+          const message = error instanceof Error ? error.message : String(error);
+          setStatus(`Could not import the TV channel CSV: ${message}`, true);
+          finishSerialExport(`Could not import the TV channel CSV: ${message}`, true);
+        }
+      }
+
+      function handleSerialBytes(incoming) {
+        let remaining = incoming;
+        while (remaining.length > 0 || serialFrameBuffer.length > 0) {
+          if (serialCsvTransfer) {
+            if (serialCsvTransfer.phase === "data") {
+              const transfer = serialCsvTransfer;
+              const data = joinBytes(transfer.pending, remaining);
+              remaining = new Uint8Array();
+              const abortMarker = new TextEncoder().encode(`\r\nTVCSV_ABORT:${transfer.id}\r\n`);
+              const abortIndex = findBytes(data, abortMarker);
+              if (abortIndex >= 0) {
+                finishSerialExport("The ESP32 could not complete the TV channel transfer.", true);
+                serialFrameBuffer = data.slice(abortIndex + abortMarker.length);
+                remaining = serialFrameBuffer;
+                serialFrameBuffer = new Uint8Array();
+                continue;
+              }
+
+              const bytesNeeded = transfer.expectedBytes - transfer.receivedBytes;
+              const potentialAbort = findPotentialBytes(data, abortMarker);
+              const safeLength = potentialAbort >= 0 ? potentialAbort : data.length;
+              const chunkLength = Math.min(bytesNeeded, safeLength);
+              if (chunkLength > 0) {
+                transfer.chunks.push(data.slice(0, chunkLength));
+                transfer.receivedBytes += chunkLength;
+              }
+              transfer.pending = data.slice(chunkLength);
+              if (transfer.receivedBytes === transfer.expectedBytes) {
+                transfer.phase = "end";
+                remaining = transfer.pending;
+                transfer.pending = new Uint8Array();
+                continue;
+              }
+              return;
+            }
+
+            const transfer = serialCsvTransfer;
+            const data = joinBytes(transfer.pending, remaining);
+            remaining = new Uint8Array();
+            const endMarker = new TextEncoder().encode(`\r\nTVCSV_END:${transfer.id}\r\n`);
+            const abortMarker = new TextEncoder().encode(`\r\nTVCSV_ABORT:${transfer.id}\r\n`);
+            if (startsWithBytes(data, endMarker)) {
+              serialCsvTransfer = null;
+              importSerialCsv(transfer);
+              remaining = data.slice(endMarker.length);
+              continue;
+            }
+            if (startsWithBytes(data, abortMarker)) {
+              finishSerialExport("The ESP32 could not complete the TV channel transfer.", true);
+              remaining = data.slice(abortMarker.length);
+              continue;
+            }
+            if (hasPartialBytePrefix(data, endMarker) || hasPartialBytePrefix(data, abortMarker)) {
+              transfer.pending = data;
+              return;
+            }
+            finishSerialExport("The TV channel transfer ended with an invalid frame.", true);
+            serialFrameBuffer = data;
+            remaining = serialFrameBuffer;
+            serialFrameBuffer = new Uint8Array();
+            continue;
+          }
+
+          const data = joinBytes(serialFrameBuffer, remaining);
+          serialFrameBuffer = new Uint8Array();
+          remaining = new Uint8Array();
+          const markerIndex = findBytes(data, SERIAL_BEGIN_PREFIX);
+          if (markerIndex < 0) {
+            const flushLength = Math.max(0, data.length - SERIAL_BEGIN_PREFIX.length + 1);
+            appendConsoleBytes(data.slice(0, flushLength));
+            serialFrameBuffer = data.slice(flushLength);
+            return;
+          }
+
+          const newlineIndex = data.indexOf(0x0a, markerIndex);
+          if (newlineIndex < 0) {
+            if (data.length - markerIndex > 128) {
+              appendConsoleBytes(data);
+              finishSerialExport("The ESP32 sent an invalid channel transfer header.", true);
+              return;
+            }
+            appendConsoleBytes(data.slice(0, markerIndex));
+            serialFrameBuffer = data.slice(markerIndex);
+            return;
+          }
+
+          appendConsoleBytes(data.slice(0, markerIndex));
+          const header = new TextDecoder().decode(data.slice(markerIndex, newlineIndex + 1));
+          const match = /^TVCSV_BEGIN:([a-f0-9]{32}):(\d+)\r?\n$/.exec(header);
+          if (!match) {
+            appendSerialOutput(header);
+            finishSerialExport("The ESP32 sent an invalid channel transfer header.", true);
+            remaining = data.slice(newlineIndex + 1);
+            continue;
+          }
+
+          const expectedBytes = Number(match[2]);
+          if (!Number.isSafeInteger(expectedBytes)
+            || expectedBytes < 1
+            || expectedBytes > MAX_TV_EXPORT_CSV_BYTES) {
+            finishSerialExport("The TV channel CSV exceeds the 1 MiB browser transfer limit.", true);
+            remaining = data.slice(newlineIndex + 1);
+            continue;
+          }
+
+          serialCsvTransfer = {
+            id: match[1],
+            expectedBytes,
+            receivedBytes: 0,
+            chunks: [],
+            pending: new Uint8Array(),
+            phase: "data"
+          };
+          armSerialExportTimeout(180000, "Timed out while receiving the TV channel CSV.");
+          setSerialStatus(`Receiving ${formatNumber(expectedBytes)} bytes from the TV over USB…`);
+          remaining = data.slice(newlineIndex + 1);
+        }
+      }
+
+      function flushSerialProtocol() {
+        if (serialCsvTransfer) {
+          finishSerialExport("The serial connection ended before the TV CSV transfer completed.", true);
+        }
+        if (serialFrameBuffer.length) {
+          appendConsoleBytes(serialFrameBuffer);
+          serialFrameBuffer = new Uint8Array();
+        }
+        const trailingText = serialConsoleDecoder.decode();
+        if (trailingText) appendSerialOutput(trailingText);
+      }
+
+      async function readSerial(port) {
+        let reader = null;
+        let readError = null;
+        try {
+          reader = port.readable.getReader();
+          serialReader = reader;
+          while (true) {
+            const { value, done } = await reader.read();
+            if (done) break;
+            handleSerialBytes(value);
+          }
+        } catch (error) {
+          readError = error;
+          if (serialExportInProgress) {
+            finishSerialExport(`Serial read failed: ${error instanceof Error ? error.message : String(error)}`, true);
+          } else if (serialPort === port) {
+            setSerialStatus(`Serial read failed: ${error instanceof Error ? error.message : String(error)}`, true);
+          }
+        } finally {
+          if (reader) reader.releaseLock();
+          if (serialReader === reader) serialReader = null;
+          flushSerialProtocol();
+          if (serialPort === port) {
+            updateSerialControls();
+            setSerialStatus(
+              readError
+                ? `Serial stream ended: ${readError instanceof Error ? readError.message : String(readError)}`
+                : "The ESP32 serial stream has closed. Disconnect before reconnecting.",
+              true
+            );
+          }
+        }
+      }
+
+      async function connectSerial() {
+        if (!serialAvailable) return;
+        try {
+          const port = await navigator.serial.requestPort();
+          await port.open({ baudRate: SERIAL_BAUD_RATE });
+          serialPort = port;
+          elements.serialOutput.textContent = "";
+          hasSerialOutput = false;
+          serialConsoleDecoder = new TextDecoder();
+          serialFrameBuffer = new Uint8Array();
+          serialCsvTransfer = null;
+          updateSerialControls();
+          setSerialStatus(`Connected at ${formatNumber(SERIAL_BAUD_RATE)} baud. Type help to list commands.`);
+          serialReadTask = readSerial(port);
+        } catch (error) {
+          if (error instanceof Error && (error.name === "NotFoundError" || error.name === "AbortError")) {
+            setSerialStatus("Port selection was cancelled.");
+            return;
+          }
+          setSerialStatus(`Could not connect to the ESP32 serial port: ${error instanceof Error ? error.message : String(error)}`, true);
+        }
+      }
+
+      async function disconnectSerial() {
+        const port = serialPort;
+        if (!port) return;
+        const reader = serialReader;
+        let disconnectError = null;
+        if (serialExportInProgress) {
+          finishSerialExport("Serial connection closed before the TV CSV transfer completed.", true);
+        }
+        setSerialStatus("Disconnecting from the ESP32…");
+        serialPort = null;
+        updateSerialControls();
+        try {
+          if (reader) await reader.cancel();
+        } catch (error) {
+          disconnectError = error;
+        }
+        try {
+          if (serialReadTask) await serialReadTask;
+        } catch (error) {
+          if (!disconnectError) disconnectError = error;
+        }
+        try {
+          await port.close();
+        } catch (error) {
+          if (!disconnectError) disconnectError = error;
+        } finally {
+          serialReader = null;
+          serialReadTask = null;
+          updateSerialControls();
+        }
+        setSerialStatus(
+          disconnectError
+            ? `Could not close the ESP32 serial port: ${disconnectError instanceof Error ? disconnectError.message : String(disconnectError)}`
+            : "Disconnected from the ESP32.",
+          disconnectError !== null
+        );
+      }
+
+      async function sendSerialCommand(commandOverride) {
+        if (!serialPort) return;
+        const command = (commandOverride ?? elements.serialCommand.value).trim();
+        if (!command) return;
+        if (/[\u0000-\u001f\u007f]/.test(command)) {
+          setSerialStatus("Commands must be a single line without control characters.", true);
+          return;
+        }
+        const isTvExport = command === "tv-export";
+        if (isTvExport) startSerialExport();
+
+        let writer = null;
+        try {
+          writer = serialPort.writable.getWriter();
+          await writer.write(new TextEncoder().encode(`${command}\r\n`));
+          if (commandOverride === undefined) elements.serialCommand.value = "";
+          if (!isTvExport) setSerialStatus("Command sent to the ESP32 console.");
+        } catch (error) {
+          const message = `Could not send the command: ${error instanceof Error ? error.message : String(error)}`;
+          if (isTvExport) finishSerialExport(message, true);
+          else setSerialStatus(message, true);
+        } finally {
+          if (writer) writer.releaseLock();
+        }
+      }
+
+      function parseCsv(text) {
+        const source = text.startsWith("\uFEFF") ? text.slice(1) : text;
+        const records = [];
+        let row = [];
+        let field = "";
+        let inQuotes = false;
+        let quoteClosed = false;
+
+        function pushField() {
+          row.push(field);
+          field = "";
+          quoteClosed = false;
+        }
+
+        function pushRecord() {
+          pushField();
+          records.push(row);
+          row = [];
+        }
+
+        for (let index = 0; index < source.length; index += 1) {
+          const character = source[index];
+          if (inQuotes) {
+            if (character === '"') {
+              if (source[index + 1] === '"') {
+                field += '"';
+                index += 1;
+              } else {
+                inQuotes = false;
+                quoteClosed = true;
+              }
+            } else {
+              field += character;
+            }
+          } else if (quoteClosed) {
+            if (character === ",") {
+              pushField();
+            } else if (character === "\n" || character === "\r") {
+              if (character === "\r" && source[index + 1] === "\n") index += 1;
+              pushRecord();
+            } else {
+              throw new Error(`Invalid CSV: unexpected character after a closing quote at character ${index + 1}.`);
+            }
+          } else if (character === '"') {
+            if (field.length !== 0) {
+              throw new Error(`Invalid CSV: quote inside an unquoted field at character ${index + 1}.`);
+            }
+            inQuotes = true;
+          } else if (character === ",") {
+            pushField();
+          } else if (character === "\n" || character === "\r") {
+            if (character === "\r" && source[index + 1] === "\n") index += 1;
+            pushRecord();
+          } else {
+            field += character;
+          }
+
+          if (field.length > MAX_CELL_LENGTH) {
+            throw new Error(`A CSV cell exceeds the ${MAX_CELL_LENGTH.toLocaleString()} character limit.`);
+          }
+        }
+
+        if (inQuotes) throw new Error("Invalid CSV: an opening quote was not closed.");
+        if (field.length || row.length || quoteClosed) pushRecord();
+        if (!records.length) throw new Error("The CSV file does not contain a header row.");
+
+        const headers = records[0];
+        if (headers.length > MAX_COLUMNS) throw new Error(`The CSV exceeds the ${MAX_COLUMNS} column limit.`);
+        if (headers.some((header) => !header.trim())) throw new Error("The CSV contains an empty column name.");
+        if (new Set(headers).size !== headers.length) throw new Error("The CSV contains duplicate column names.");
+        const missing = REQUIRED_COLUMNS.filter((header) => !headers.includes(header));
+        if (missing.length) throw new Error(`Required columns are missing: ${missing.join(", ")}.`);
+        if (records.length - 1 > MAX_ROWS) throw new Error(`The CSV exceeds the ${MAX_ROWS.toLocaleString()} row limit.`);
+
+        const rows = [];
+        for (let index = 1; index < records.length; index += 1) {
+          const values = records[index];
+          if (values.length !== headers.length) {
+            throw new Error(`Row ${index + 1} contains ${values.length} fields; expected ${headers.length}.`);
+          }
+          rows.push({ id: index, values });
+        }
+        return { headers, rows };
+      }
+
+      function decodeCsv(buffer) {
+        const text = new TextDecoder("utf-8", { fatal: true }).decode(buffer);
+        return parseCsv(text);
+      }
+
+      function csvField(value) {
+        let safeValue = value;
+        const firstVisible = safeValue.trimStart().charAt(0);
+        if (["=", "+", "-", "@"].includes(firstVisible) && !safeValue.startsWith("'")) {
+          safeValue = `'${safeValue}`;
+        }
+        return `"${safeValue.replaceAll('"', '""')}"`;
+      }
+
+      function encodeCsv(data) {
+        const lines = [data.headers, ...data.rows.map((item) => item.values)]
+          .map((values) => values.map(csvField).join(","));
+        return `\uFEFF${lines.join("\r\n")}\r\n`;
+      }
+
+      function columnIndex(name) {
+        return table.headers.indexOf(name);
+      }
+
+      function duplicateNumberCount(rows) {
+        const numberIndex = columnIndex("channel_number");
+        const inputIndex = columnIndex("input_id");
+        const numbersByInput = new Map();
+        for (const item of rows) {
+          const number = item.values[numberIndex] ?? "";
+          const input = item.values[inputIndex] ?? "";
+          if (!number.trim()) continue;
+          const key = `${input}\u0000${number.trim()}`;
+          numbersByInput.set(key, (numbersByInput.get(key) ?? 0) + 1);
+        }
+        return [...numbersByInput.values()]
+          .reduce((sum, count) => sum + Math.max(0, count - 1), 0);
+      }
+
+      function updateSummary() {
+        const numberIndex = columnIndex("channel_number");
+        const nameIndex = columnIndex("channel_name");
+        let unnumbered = 0;
+        let unnamed = 0;
+        let dotNames = 0;
+
+        for (const item of table.rows) {
+          const number = item.values[numberIndex] ?? "";
+          const name = item.values[nameIndex] ?? "";
+          if (!number.trim()) unnumbered += 1;
+          if (!name.trim()) unnamed += 1;
+          if (name.trim() === "." || /^\.\d+\.$/.test(name.trim())) dotNames += 1;
+        }
+
+        const duplicates = duplicateNumberCount(table.rows);
+        elements.statRows.textContent = formatNumber(table.rows.length);
+        elements.statUnnumbered.textContent = formatNumber(unnumbered);
+        elements.statUnnamed.textContent = formatNumber(unnamed);
+        elements.statDotNames.textContent = formatNumber(dotNames);
+        elements.statDuplicates.textContent = formatNumber(duplicates);
+        elements.duplicateStat.classList.toggle("warning", duplicates > 0);
+      }
+
+      function naturalCompare(first, second) {
+        if (!first.trim() && second.trim()) return 1;
+        if (first.trim() && !second.trim()) return -1;
+        return first.localeCompare(second, undefined, { numeric: true, sensitivity: "base" });
+      }
+
+      function visibleRows() {
+        const query = elements.searchInput.value.trim().toLocaleLowerCase();
+        const matching = table.rows.filter((item) => {
+          if (!query) return true;
+          return item.values.some((value) => value.toLocaleLowerCase().includes(query));
+        });
+
+        const sort = elements.sortSelect.value;
+        const sortColumn = {
+          number: "channel_number",
+          name: "channel_name",
+          broadcast: "broadcast_type"
+        }[sort];
+        if (!sortColumn) return matching;
+
+        const index = columnIndex(sortColumn);
+        return matching
+          .map((item, stableIndex) => ({ item, stableIndex }))
+          .sort((left, right) =>
+            naturalCompare(left.item.values[index], right.item.values[index]) ||
+            left.stableIndex - right.stableIndex
+          )
+          .map((entry) => entry.item);
+      }
+
+      function canReorder() {
+        return table !== null &&
+          elements.sortSelect.value === "manual" &&
+          elements.searchInput.value.trim() === "";
+      }
+
+      function setLoadedState(loaded) {
+        elements.exportButton.disabled = !loaded;
+        elements.resetButton.disabled = !loaded;
+        elements.searchInput.disabled = !loaded;
+        elements.sortSelect.disabled = !loaded;
+        elements.openButton.disabled = false;
+      }
+
+      function activateTable(loaded, sourceName) {
+        table = loaded;
+        table.sourceName = sourceName;
+        originalRows = loaded.rows.map((item) => ({ id: item.id, values: [...item.values] }));
+        elements.summary.classList.remove("hidden");
+        elements.tableWrap.scrollTop = 0;
+        elements.searchInput.value = "";
+        elements.sortSelect.value = "manual";
+        setLoadedState(true);
+        render();
+      }
+
+      function render() {
+        if (!table) return;
+        const filtered = visibleRows();
+        const manualOrder = canReorder();
+        const fragment = document.createDocumentFragment();
+
+        if (!filtered.length) {
+          const emptyRow = document.createElement("tr");
+          const emptyCell = document.createElement("td");
+          emptyCell.className = "empty";
+          emptyCell.colSpan = 9;
+          emptyCell.textContent = "No matching channels found.";
+          emptyRow.append(emptyCell);
+          fragment.append(emptyRow);
+        }
+
+        for (const item of filtered) {
+          const tr = document.createElement("tr");
+          tr.dataset.rowId = String(item.id);
+          tr.draggable = manualOrder;
+
+          const orderCell = document.createElement("td");
+          orderCell.className = "order-cell";
+          const index = table.rows.indexOf(item);
+          orderCell.append(document.createTextNode(`${index + 1} `));
+          const upButton = document.createElement("button");
+          upButton.type = "button";
+          upButton.textContent = "↑";
+          upButton.title = "Move up in draft order";
+          upButton.setAttribute("aria-label", `Move row ${index + 1} up`);
+          upButton.disabled = !manualOrder || index === 0;
+          upButton.addEventListener("click", () => moveRow(index, index - 1));
+          const downButton = document.createElement("button");
+          downButton.type = "button";
+          downButton.textContent = "↓";
+          downButton.title = "Move down in draft order";
+          downButton.setAttribute("aria-label", `Move row ${index + 1} down`);
+          downButton.disabled = !manualOrder || index === table.rows.length - 1;
+          downButton.addEventListener("click", () => moveRow(index, index + 1));
+          orderCell.append(upButton, downButton);
+          tr.append(orderCell);
+
+          for (const [key] of COLUMNS) {
+            const cell = document.createElement("td");
+            const value = item.values[columnIndex(key)] ?? "";
+            const text = document.createElement("span");
+            text.className = "cell-text";
+            text.textContent = value;
+            cell.title = value;
+            cell.append(text);
+            if (key === "channel_number" || key === "channel_name") {
+              cell.className = "editable";
+              cell.title = `${value || "Empty"} — double-click to edit`;
+              cell.addEventListener("dblclick", () => beginEdit(cell, item, key));
+              cell.setAttribute("aria-label", `${key === "channel_number" ? "Channel number" : "Channel name"}: ${value || "empty"}; double-click to edit`);
+            }
+            tr.append(cell);
+          }
+
+          tr.addEventListener("dragstart", (event) => {
+            if (!canReorder()) {
+              event.preventDefault();
+              return;
+            }
+            draggingRow = item;
+            tr.classList.add("dragging");
+            event.dataTransfer.effectAllowed = "move";
+            event.dataTransfer.setData("text/plain", String(item.id));
+          });
+          tr.addEventListener("dragend", () => {
+            draggingRow = null;
+            tr.classList.remove("dragging");
+            elements.tableBody.querySelectorAll(".drop-target").forEach((node) => node.classList.remove("drop-target"));
+          });
+          tr.addEventListener("dragover", (event) => {
+            if (!canReorder() || !draggingRow || draggingRow === item) return;
+            event.preventDefault();
+            event.dataTransfer.dropEffect = "move";
+            tr.classList.add("drop-target");
+          });
+          tr.addEventListener("dragleave", () => tr.classList.remove("drop-target"));
+          tr.addEventListener("drop", (event) => {
+            if (!canReorder() || !draggingRow || draggingRow === item) return;
+            event.preventDefault();
+            const after = event.clientY > tr.getBoundingClientRect().top + tr.getBoundingClientRect().height / 2;
+            const source = draggingRow;
+            draggingRow = null;
+            moveBefore(source, item, after);
+          });
+          fragment.append(tr);
+        }
+
+        elements.tableBody.replaceChildren(fragment);
+        elements.tableCount.textContent =
+          `${formatNumber(filtered.length)} of ${formatNumber(table.rows.length)} channel rows` +
+          (filtered.length !== table.rows.length ? " · filtered" : "");
+        elements.status.textContent = manualOrder
+          ? "Draft order is active. Changes are saved only when you download the CSV."
+          : "Sorting and search affect the view only. Clear search and choose Draft order to reorder rows.";
+        elements.status.style.color = "";
+        updateSummary();
+      }
+
+      function beginEdit(cell, item, key) {
+        if (cell.querySelector("input")) return;
+        const index = columnIndex(key);
+        const original = item.values[index] ?? "";
+        const input = document.createElement("input");
+        input.className = "cell-editor";
+        input.type = "text";
+        input.maxLength = key === "channel_number" ? 64 : 512;
+        input.value = original;
+        input.setAttribute("aria-label", key === "channel_number" ? "Edit channel number" : "Edit channel name");
+        cell.replaceChildren(input);
+        input.focus();
+        input.select();
+
+        let finished = false;
+        const finish = (save) => {
+          if (finished) return;
+          finished = true;
+          if (save) {
+            const value = input.value;
+            if (/[\u0000-\u001f\u007f]/.test(value)) {
+              finished = false;
+              setStatus("Control characters are not allowed in channel numbers or names.", true);
+              input.focus();
+              return;
+            }
+            item.values[index] = value;
+          }
+          render();
+          if (save && item.values[index] !== original) setStatus("Local draft updated; the TV was not changed.");
+        };
+        input.addEventListener("keydown", (event) => {
+          if (event.key === "Enter") {
+            event.preventDefault();
+            finish(true);
+          } else if (event.key === "Escape") {
+            event.preventDefault();
+            finish(false);
+          }
+        });
+        input.addEventListener("blur", () => finish(true));
+      }
+
+      function moveRow(from, to) {
+        if (!canReorder() || from < 0 || to < 0 || from >= table.rows.length || to >= table.rows.length) return;
+        const [item] = table.rows.splice(from, 1);
+        table.rows.splice(to, 0, item);
+        render();
+        setStatus("Draft order changed. Nothing has been written to the TV.");
+      }
+
+      function moveBefore(source, target, after) {
+        const sourceIndex = table.rows.indexOf(source);
+        if (sourceIndex < 0 || source === target) return;
+        table.rows.splice(sourceIndex, 1);
+        const targetIndex = table.rows.indexOf(target);
+        if (targetIndex < 0) return;
+        table.rows.splice(targetIndex + (after ? 1 : 0), 0, source);
+        render();
+        setStatus("Draft order changed. Nothing has been written to the TV.");
+      }
+
+      function loadFile(file) {
+        if (!file) return;
+        if (file.size > MAX_FILE_BYTES) {
+          setStatus(`The file exceeds the ${Math.round(MAX_FILE_BYTES / 1024 / 1024)} MB limit.`, true);
+          return;
+        }
+        if (file.size === 0) {
+          setStatus("The selected file is empty.", true);
+          return;
+        }
+
+        setStatus(`Reading ${file.name} locally …`);
+        file.arrayBuffer()
+          .then(decodeCsv)
+          .then((loaded) => {
+            activateTable(loaded, file.name);
+            setStatus(`Loaded ${formatNumber(loaded.rows.length)} channel rows from “${file.name}” locally.`);
+          })
+          .catch((error) => {
+            setStatus(error instanceof Error ? error.message : "Could not read the CSV file.", true);
+          });
+      }
+
+      function exportDraft() {
+        if (!table) return;
+        const duplicates = duplicateNumberCount(table.rows);
+        if (duplicates > 0 && !window.confirm(
+          `${formatNumber(duplicates)} channel number(s) are duplicated within the same TV input. Download the CSV draft anyway?`
+        )) return;
+        const csv = encodeCsv(table);
+        const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        const stem = (table.sourceName || "tv-channel-list").replace(/\.csv$/i, "").replace(/[^\p{L}\p{N}._-]+/gu, "-").slice(0, 80);
+        link.href = url;
+        link.download = `${stem}-draft.csv`;
+        link.hidden = true;
+        document.body.append(link);
+        link.click();
+        link.remove();
+        window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+        setStatus("CSV draft downloaded. It is not a TV import format.");
+      }
+
+      elements.serialConnectButton.addEventListener("click", connectSerial);
+      elements.serialExportButton.addEventListener("click", () => {
+        if (!serialPort) return;
+        if (!window.confirm(
+          "Request a read-only channel export from the Android TV currently connected to this ESP32? A CSV will be created in the TV's Downloads folder; channel data is not changed."
+        )) return;
+        sendSerialCommand("tv-export");
+      });
+      elements.serialDisconnectButton.addEventListener("click", disconnectSerial);
+      elements.serialSendButton.addEventListener("click", sendSerialCommand);
+      elements.serialCommand.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          sendSerialCommand();
+        }
+      });
+      elements.serialClearButton.addEventListener("click", () => {
+        elements.serialOutput.textContent = "";
+        hasSerialOutput = false;
+        updateSerialControls();
+      });
+      if (serialAvailable) {
+        navigator.serial.addEventListener("disconnect", (event) => {
+          if (event.target !== serialPort) return;
+          if (serialExportInProgress) {
+            finishSerialExport("The ESP32 was disconnected during the TV channel transfer.", true);
+          }
+          serialPort = null;
+          serialReader = null;
+          serialReadTask = null;
+          flushSerialProtocol();
+          updateSerialControls();
+          if (!serialExportInProgress) setSerialStatus("The ESP32 USB serial device was disconnected.", true);
+        });
+        setSerialStatus("Not connected. Select a port to open the ESP32 console.");
+      } else {
+        elements.serialConnectButton.title =
+          "Web Serial requires a supported desktop browser and a secure context.";
+        setSerialStatus("Web Serial is unavailable here. Use a current desktop Chrome or Edge window.", true);
+      }
+      updateSerialControls();
+
+      elements.openButton.addEventListener("click", () => elements.fileInput.click());
+      elements.fileInput.addEventListener("change", () => {
+        loadFile(elements.fileInput.files?.[0]);
+        elements.fileInput.value = "";
+      });
+      elements.dropZone.addEventListener("dragover", (event) => {
+        if (event.dataTransfer?.types.includes("Files")) {
+          event.preventDefault();
+          elements.dropZone.classList.add("drag-over");
+        }
+      });
+      elements.dropZone.addEventListener("dragleave", (event) => {
+        if (!elements.dropZone.contains(event.relatedTarget)) elements.dropZone.classList.remove("drag-over");
+      });
+      elements.dropZone.addEventListener("drop", (event) => {
+        if (!event.dataTransfer?.files.length) return;
+        event.preventDefault();
+        elements.dropZone.classList.remove("drag-over");
+        loadFile(event.dataTransfer.files[0]);
+      });
+      elements.searchInput.addEventListener("input", () => {
+        elements.tableWrap.scrollTop = 0;
+        render();
+      });
+      elements.sortSelect.addEventListener("change", () => {
+        elements.tableWrap.scrollTop = 0;
+        render();
+      });
+      elements.exportButton.addEventListener("click", exportDraft);
+      elements.resetButton.addEventListener("click", () => {
+        if (!table || !originalRows.length) return;
+        table.rows = originalRows.map((item) => ({ id: item.id, values: [...item.values] }));
+        elements.tableWrap.scrollTop = 0;
+        elements.searchInput.value = "";
+        elements.sortSelect.value = "manual";
+        render();
+        setStatus("The original order and values from the loaded CSV have been restored.");
+      });
+    })();
+  </script>
+</body>
+</html>

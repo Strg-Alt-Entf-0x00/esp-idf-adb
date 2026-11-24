@@ -1,0 +1,95 @@
+Command: C:\Espressif\tools\python\v6.0.2\venv\Scripts\python.exe C:\esp\v6.0.2\esp-idf\tools/idf_monitor.py -p COM4 -b 115200 --toolchain-prefix riscv32-esp-elf- --target esp32p4 --revision 0 --decode-panic backtrace D:\github-repositorys\ESP32\projects-dev\esp-idf-adb\test_apps\protocol\build-esp32p4\esp_idf_adb_protocol_tests.elf D:\github-repositorys\ESP32\projects-dev\esp-idf-adb\test_apps\protocol\build-esp32p4\bootloader\bootloader.elf --force-color -m 'C:\Espressif\tools\python\v6.0.2\venv\Scripts\python.exe' 'C:\esp\v6.0.2\esp-idf\tools\idf.py' '-B' 'D:\github-repositorys\ESP32\projects-dev\esp-idf-adb\test_apps\protocol\build-esp32p4' '-D' 'SDKCONFIG=D:\github-repositorys\ESP32\projects-dev\esp-idf-adb\test_apps\protocol\build-esp32p4\sdkconfig' '-D' 'IDF_TARGET=esp32p4' '-p' 'COM4'
+--- WARNING: GDB cannot open serial ports accessed as COMx
+--- NOTE: Using \\.\COM4 instead...
+--- esp-idf-monitor 1.10.0 on \\.\COM4 115200
+--- Quit: Ctrl+] | Menu: Ctrl+T | Help: Ctrl+T followed by Ctrl+H
+--- 0x4ff28ed0: esp_bootloader_get_description at C:/esp/v6.0.2/esp-idf/components/esp_bootloader_format/esp_bootloader_desc.c:40
+--- 0x4ff2bbd0: is_xmc_chip_strict at C:/esp/v6.0.2/esp-idf/components/bootloader_support/bootloader_flash/src/bootloader_flash.c:925
+--- 0x4ff28eda: call_start_cpu0 at C:/esp/v6.0.2/esp-idf/components/bootloader/subproject/main/bootloader_start.c:27
+--- 0x4000f642: adb_auth_init at D:/github-repositorys/ESP32/projects-dev/esp-idf-adb/src/adb_auth.c:94
+--- Stack dump detected
+--- 0x4000f65a: adb_auth_init at D:/github-repositorys/ESP32/projects-dev/esp-idf-adb/src/adb_auth.c:95
+--- 0x4000df38: test_func_120 at D:/github-repositorys/ESP32/projects-dev/esp-idf-adb/test_apps/protocol/main/test_adb_protocol.c:133
+--- 0x4fc1a058: _printf_i in ROM
+--- 0x4fc1a064: _printf_i in ROM
+--- 0x4ff00003: _vector_table at ??:?
+
+Traceback (most recent call last):
+  File "<frozen runpy>", line 203, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "C:\Espressif\tools\python\v6.0.2\venv\Lib\site-packages\esp_idf_monitor\__main__.py", line 7, in <module>
+    main()
+    ~~~~^^
+  File "C:\Espressif\tools\python\v6.0.2\venv\Lib\site-packages\esp_idf_monitor\idf_monitor.py", line 674, in main
+    _cli_invoke(_run_monitor)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "C:\Espressif\tools\python\v6.0.2\venv\Lib\site-packages\esp_idf_monitor\base\argument_parser.py", line 207, in invoke
+    cli.main(args=argv, obj=runner, standalone_mode=True)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Espressif\tools\python\v6.0.2\venv\Lib\site-packages\rich_click\rich_command.py", line 216, in main
+    rv = self.invoke(ctx)
+  File "C:\Espressif\tools\python\v6.0.2\venv\Lib\site-packages\click\core.py", line 1443, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Espressif\tools\python\v6.0.2\venv\Lib\site-packages\click\core.py", line 788, in invoke
+    return __callback(*args, **kwargs)
+  File "C:\Espressif\tools\python\v6.0.2\venv\Lib\site-packages\click\decorators.py", line 33, in new_func
+    return f(get_current_context(), *args, **kwargs)
+  File "C:\Espressif\tools\python\v6.0.2\venv\Lib\site-packages\esp_idf_monitor\base\argument_parser.py", line 197, in cli
+    runner(**kwargs)
+    ~~~~~~^^^^^^^^^^
+  File "C:\Espressif\tools\python\v6.0.2\venv\Lib\site-packages\esp_idf_monitor\idf_monitor.py", line 642, in _run_monitor
+    monitor.main_loop()
+    ~~~~~~~~~~~~~~~~~^^
+  File "C:\Espressif\tools\python\v6.0.2\venv\Lib\site-packages\esp_idf_monitor\idf_monitor.py", line 294, in main_loop
+    self._main_loop()
+    ~~~~~~~~~~~~~~~^^
+  File "C:\Espressif\tools\python\v6.0.2\venv\Lib\site-packages\esp_idf_monitor\idf_monitor.py", line 439, in _main_loop
+    super()._main_loop()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "C:\Espressif\tools\python\v6.0.2\venv\Lib\site-packages\esp_idf_monitor\idf_monitor.py", line 347, in _main_loop
+    self.serial_handler.handle_serial_input(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        data,
+        ^^^^^
+    ...<4 lines>...
+        self.check_gdb_stub_and_run,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Espressif\tools\python\v6.0.2\venv\Lib\site-packages\esp_idf_monitor\base\serial_handler.py", line 251, in handle_serial_input
+    self.check_panic_decode_trigger(line_strip)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "C:\Espressif\tools\python\v6.0.2\venv\Lib\site-packages\esp_idf_monitor\base\serial_handler.py", line 330, in check_panic_decode_trigger
+    out = self.panic_handler.process_panic_output(self._panic_buffer)
+  File "C:\Espressif\tools\python\v6.0.2\venv\Lib\site-packages\esp_idf_panic_decoder\panic_output_decoder.py", line 45, in process_panic_output
+    output = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
+  File "C:\Users\Ghost\AppData\Local\Programs\Python\Python313\Lib\subprocess.py", line 472, in check_output
+    return run(*popenargs, stdout=PIPE, timeout=timeout, check=True,
+           ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               **kwargs).stdout
+               ^^^^^^^^^
+  File "C:\Users\Ghost\AppData\Local\Programs\Python\Python313\Lib\subprocess.py", line 554, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Ghost\AppData\Local\Programs\Python\Python313\Lib\subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Ghost\AppData\Local\Programs\Python\Python313\Lib\subprocess.py", line 1554, in _execute_child
+    hp, ht, pid, tid = _winapi.CreateProcess(executable, args,
+                       ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+                             # no special security
+                             ^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+                             cwd,
+                             ^^^^
+                             startupinfo)
+                             ^^^^^^^^^^^^
+FileNotFoundError: [WinError 2] Das System kann die angegebene Datei nicht finden

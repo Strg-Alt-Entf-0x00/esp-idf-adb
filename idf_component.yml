@@ -1,0 +1,18 @@
+version: "0.1.0"
+description: "ADB TCP client component for ESP-IDF with RSA authentication"
+license: "PolyForm-Noncommercial-1.0.0"
+url: "https://github.com/Strg-Alt-Entf-0x00/esp-idf-adb"
+repository: "https://github.com/Strg-Alt-Entf-0x00/esp-idf-adb.git"
+issues: "https://github.com/Strg-Alt-Entf-0x00/esp-idf-adb/issues"
+
+dependencies:
+  idf: ">=6.0.2"
+
+files:
+  exclude:
+    - "**/.*"
+    - "**/.*/**/*"
+    - "**/.venv/**/*"
+    - "**/*.egg-info/**/*"
+    - "**/*.old"
+    - "**/*.bak"
