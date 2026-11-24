@@ -25,7 +25,15 @@
 
     * { box-sizing: border-box; }
 
-    body { margin: 0; min-width: 360px; }
+    body {
+      margin: 0;
+      min-width: 360px;
+      padding-bottom: 255px;
+      transition: padding-bottom 0.2s ease;
+    }
+    body.console-collapsed {
+      padding-bottom: 45px;
+    }
 
     button, input, select { font: inherit; }
 
@@ -130,21 +138,36 @@
     }
 
     .docked-console {
-      margin-top: 20px;
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      background: #10161f;
-      overflow: hidden;
-      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 999;
+      margin: 0;
+      border: none;
+      border-top: 1px solid var(--line);
+      border-radius: 0;
+      background: #0d131a;
+      box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.55);
+      transition: all 0.2s ease;
+    }
+    .docked-console.collapsed .serial-output,
+    .docked-console.collapsed .docked-console-input-row {
+      display: none !important;
     }
     .docked-console-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 12px;
-      padding: 9px 14px;
-      background: #17212d;
+      padding: 7px 16px;
+      background: #141c26;
       border-bottom: 1px solid var(--line);
+      cursor: pointer;
+      user-select: none;
+    }
+    .docked-console.collapsed .docked-console-header {
+      border-bottom: none;
     }
     .docked-console-title {
       display: inline-flex;
@@ -158,15 +181,48 @@
     .docked-console-title svg {
       stroke: #7ea3c7;
     }
+    .docked-console-actions {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .docked-toggle-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      min-height: 28px;
+      padding: 0;
+      border: 1px solid transparent;
+      border-radius: 5px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .docked-toggle-btn:hover {
+      background: #222d3b;
+      color: var(--ink);
+      border-color: #3b4857;
+    }
+    .docked-toggle-btn svg {
+      stroke: currentColor;
+      transition: transform 0.2s ease;
+    }
+    .docked-console.collapsed .docked-toggle-btn svg {
+      transform: rotate(180deg);
+    }
     .serial-output {
-      min-height: 120px;
-      max-height: 240px;
+      height: 145px;
+      min-height: 90px;
+      max-height: 350px;
       margin: 0;
-      padding: 12px 14px;
+      padding: 10px 16px;
       overflow-y: auto;
       border: none;
       border-radius: 0;
-      background: #090d12;
+      background: #080b0f;
       color: #d2dee9;
       font: 12px/1.5 Consolas, "Cascadia Mono", monospace;
       white-space: pre-wrap;
@@ -176,18 +232,18 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      padding: 8px 12px;
-      background: #141c26;
+      padding: 7px 16px;
+      background: #111720;
       border-top: 1px solid var(--line);
     }
     .docked-console-input-row input {
       flex: 1;
-      min-height: 36px;
-      padding: 6px 10px;
+      min-height: 34px;
+      padding: 5px 10px;
       border: 1px solid #334151;
       border-radius: 6px;
       color: var(--ink);
-      background: #090d12;
+      background: #080b0f;
       font: 13px/1.4 Consolas, "Cascadia Mono", monospace;
     }
     .docked-console-input-row input:focus {
@@ -534,14 +590,19 @@
       </section>
     </div>
 
-    <!-- DOCKED BOTTOM SERIAL CONSOLE -->
-    <section class="panel docked-console" aria-label="ESP32 serial console">
-      <div class="docked-console-header">
+    <!-- FIXED DOCKED BOTTOM SERIAL CONSOLE -->
+    <section id="dockedConsole" class="docked-console" aria-label="ESP32 serial console">
+      <div id="dockedConsoleHeader" class="docked-console-header" title="Click to collapse / expand console">
         <div class="docked-console-title">
           <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
           <span>Serial Console</span>
         </div>
-        <span id="serialStatus" class="serial-status" role="status" aria-live="polite">Not connected</span>
+        <div class="docked-console-actions">
+          <span id="serialStatus" class="serial-status" role="status" aria-live="polite">Not connected</span>
+          <button id="consoleToggleBtn" class="docked-toggle-btn" type="button" title="Collapse console" aria-label="Collapse console">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+        </div>
       </div>
       <pre id="serialOutput" class="serial-output" aria-label="ESP32 serial console output" aria-live="polite">Console output will appear here after connecting.</pre>
       <div class="docked-console-input-row">
@@ -613,6 +674,9 @@
         serialSendButton: document.getElementById("serialSendButton"),
         serialOutput: document.getElementById("serialOutput"),
         serialStatus: document.getElementById("serialStatus"),
+        dockedConsole: document.getElementById("dockedConsole"),
+        dockedConsoleHeader: document.getElementById("dockedConsoleHeader"),
+        consoleToggleBtn: document.getElementById("consoleToggleBtn"),
         tvHostInput: document.getElementById("tvHostInput"),
         tvConnectButton: document.getElementById("tvConnectButton"),
         tvInfoButton: document.getElementById("tvInfoButton"),
@@ -1625,6 +1689,29 @@
         elements.serialOutput.textContent = "";
         hasSerialOutput = false;
         updateSerialControls();
+      });
+
+      function toggleConsole(force) {
+        if (!elements.dockedConsole) return;
+        const isCollapsed = elements.dockedConsole.classList.toggle("collapsed", force);
+        if (document.body?.classList) {
+          document.body.classList.toggle("console-collapsed", isCollapsed);
+        }
+        if (elements.consoleToggleBtn) {
+          const title = isCollapsed ? "Expand console" : "Collapse console";
+          elements.consoleToggleBtn.title = title;
+          if (elements.consoleToggleBtn.setAttribute) {
+            elements.consoleToggleBtn.setAttribute("aria-label", title);
+          }
+        }
+      }
+
+      elements.consoleToggleBtn?.addEventListener("click", (event) => {
+        if (event.stopPropagation) event.stopPropagation();
+        toggleConsole();
+      });
+      elements.dockedConsoleHeader?.addEventListener("click", () => {
+        toggleConsole();
       });
 
       elements.tvConnectButton?.addEventListener("click", () => {
