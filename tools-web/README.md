@@ -5,11 +5,12 @@ A standalone, local-first HTML5 application providing a virtual remote control, 
 ## Features
 
 - **Local-first & offline**: Runs entirely inside the browser without remote servers, telemetry, or external dependencies. Secured with strict Content Security Policy (`default-src 'none'`).
-- **Web Serial connection & hardening**: Connects directly to the ESP32 USB serial console (115,200 baud) using the browser's native Web Serial API. Single connect/disconnect toggle with automatic handshake verification to reject foreign or unverified ESP devices.
+- **State-aware Web Serial connection**: Connects directly to the ESP32 USB serial console (115,200 baud) with an adaptive icon button colored dynamically by state (Red = disconnected, Amber = verifying, Green = verified). Automatically verifies Android TV ADB firmware signatures to reject foreign or unverified devices.
+- **Unified monochrome UI**: Clean, professional design with consistent monochrome vector icons and native tooltips across all controls.
+- **Docked bottom serial console**: Full-width persistent bottom terminal featuring a scrollable live log window, directly followed by the interactive command prompt and quick action icon buttons (Send, Clear).
 - **Tabbed workspace**:
-  - 📺 **TV Channels**: Triggers framed TV export from the companion app, displays responsive channel statistics, real-time search & filters (`DVB-T`, `DVB-C`, `DVB-S`, service types, lock states), and local CSV draft download.
-  - 🎮 **Remote & Apps**: Sleek D-Pad navigation, universal Android TV media keys (Home, Back, Volume, Mute, Voice Assist), and dynamic package listing with one-click app launch/stop.
-  - 💻 **Serial Console**: Live interactive serial monitor, raw command prompt, and quick-command cheat sheet.
+  - **TV Channels**: Triggers framed TV export from the companion app, displays responsive channel statistics, real-time search & filters (`DVB-T`, `DVB-C`, `DVB-S`, service types, lock states), and local CSV draft download.
+  - **Remote & Apps**: Sleek D-Pad navigation, universal Android TV media keys (Home, Back, Volume, Mute, Voice Assist), and dynamic package listing with one-click app launch/stop.
 - **Framed TV export**: Triggers `tv-export` on the firmware and receives stream-framed UTF-8 CSV chunks (`TVCSV_BEGIN:<id>:<size>`, `TVCSV_END:<id>`, `TVCSV_ABORT:<id>`).
 - **Data validation**: Validates byte counts, UTF-8 integrity, request IDs, and CSV column structure before loading data.
 - **Modern dark theme**: Clean, high-contrast user interface optimized for readability.
