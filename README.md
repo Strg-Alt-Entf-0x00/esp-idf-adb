@@ -37,10 +37,10 @@ consuming project before deployment.
   a protected one-shot broadcast receiver (`de.esp32adb.companion/.AdbExportReceiver`) allowing the
   firmware `tv-export` command to trigger and stream a channel list without root or OEM unlocking.
 
-- [`tools-web`](tools-web/README.md)
-  provides the standalone local-first HTML5 Android TV Web Suite (`tools-web/android_tv_suite.html`).
+- [`Android TV Web Suite`](tools-web/android_tv_suite.html)
+  provides the standalone local-first HTML5 web suite for the ESP32.
   It connects directly to the ESP32 USB serial console at 115,200 baud with single-click handshake verification,
-  providing TV channel CSV export & editing, a full virtual D-Pad remote, dynamic app launcher, and an interactive Web Serial terminal.
+  providing TV channel CSV export & editing, a full virtual D-Pad remote, dynamic app launcher, and a docked Web Serial terminal.
 
 - [`tests/protocol`](tests/protocol/README.md)
   is a separate Unity test application for protocol wire-header encoding/decoding, malformed packet
