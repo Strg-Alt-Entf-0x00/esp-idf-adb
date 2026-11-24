@@ -116,7 +116,7 @@ async function connectAndStartExport(app) {
   await new Promise((resolve) => setTimeout(resolve, 0));
   assert.equal(app.elements.get("serialStatus").textContent, "Waiting for the ESP32 to prepare the TV channel export…");
   assert.equal(
-    new TextDecoder().decode(app.state.writes[0]),
+    new TextDecoder().decode(app.state.writes[app.state.writes.length - 1]),
     "tv-export\r\n"
   );
 }

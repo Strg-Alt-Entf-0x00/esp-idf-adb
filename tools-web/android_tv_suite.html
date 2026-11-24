@@ -985,7 +985,7 @@
         if (/tv>|Android TV|android_tv_adb|esp_adb|Type 'help'/i.test(text)) {
           serialHandshakeVerified = true;
           clearHandshakeTimeout();
-          updateBadge("connected", "ESP32 Verified");
+          updateBadge("connected", "Connected");
           setSerialStatus("ESP32 Android TV ADB firmware verified and ready.");
           updateSerialControls();
         }
@@ -1382,14 +1382,29 @@
         }
       }
 
+      async function probeSerialRepl() {
+        if (!serialPort || !serialPort.writable) return;
+        let writer = null;
+        try {
+          writer = serialPort.writable.getWriter();
+          await writer.write(new TextEncoder().encode("\r\n"));
+        } catch {
+          // ignore transient write error during handshake probe
+        } finally {
+          if (writer) {
+            try { writer.releaseLock(); } catch {}
+          }
+        }
+      }
+
       async function connectSerial() {
         if (!serialAvailable) return;
         try {
           const port = await navigator.serial.requestPort();
           await port.open({ baudRate: SERIAL_BAUD_RATE });
           serialPort = port;
-          elements.serialOutput.textContent = "";
-          hasSerialOutput = false;
+          elements.serialOutput.textContent = `[Connected at ${formatNumber(SERIAL_BAUD_RATE)} baud. Initializing ESP32 session…]\n`;
+          hasSerialOutput = true;
           serialConsoleDecoder = new TextDecoder();
           serialFrameBuffer = new Uint8Array();
           serialCsvTransfer = null;
@@ -1399,18 +1414,36 @@
           updateSerialControls();
           setSerialStatus(`Connected at ${formatNumber(SERIAL_BAUD_RATE)} baud. Verifying Android TV ADB firmware…`);
           serialReadTask = readSerial(port);
-          serialHandshakeTimeout = window.setTimeout(() => {
+
+          // Prompt the ESP32 console repl with a newline to elicit the "tv> " prompt immediately
+          probeSerialRepl();
+
+          // Second probe after 1.2s in case ESP32 UART buffer was busy
+          const retryTimer = window.setTimeout(() => {
             if (!serialHandshakeVerified && serialPort === port) {
-              setSerialStatus("Rejected: The connected USB device did not respond as the Android TV ADB firmware.", true);
+              probeSerialRepl();
+            }
+          }, 1200);
+
+          serialHandshakeTimeout = window.setTimeout(() => {
+            window.clearTimeout(retryTimer);
+            if (!serialHandshakeVerified && serialPort === port) {
+              const errMsg = "Rejected: The connected USB device did not respond as the Android TV ADB firmware (missing 'tv>' prompt).";
+              setSerialStatus(errMsg, true);
+              appendSerialOutput(`\n[Connection Error] ${errMsg}\n`);
               disconnectSerial();
             }
-          }, 4500);
+          }, 6000);
         } catch (error) {
           if (error instanceof Error && (error.name === "NotFoundError" || error.name === "AbortError")) {
             setSerialStatus("Port selection was cancelled.");
             return;
           }
-          setSerialStatus(`Could not connect to the ESP32 serial port: ${error instanceof Error ? error.message : String(error)}`, true);
+          const msg = `Could not connect to the ESP32 serial port: ${error instanceof Error ? error.message : String(error)}`;
+          setSerialStatus(msg, true);
+          elements.serialOutput.textContent = `[Connection Error] ${msg}\n(If the port is busy, ensure no other serial monitor or terminal has COM4 open.)\n`;
+          hasSerialOutput = true;
+          updateSerialControls();
         }
       }
 
@@ -1453,6 +1486,11 @@
             : "Disconnected from the ESP32.",
           disconnectError !== null
         );
+        if (disconnectError) {
+          appendSerialOutput(`\n[Disconnect Error] ${disconnectError instanceof Error ? disconnectError.message : String(disconnectError)}\n`);
+        } else {
+          appendSerialOutput("\n[Disconnected from the ESP32]\n");
+        }
       }
 
       async function sendSerialCommand(commandOverride) {
