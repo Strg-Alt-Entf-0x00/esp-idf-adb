@@ -261,3 +261,47 @@ test("toggles single connect/disconnect button state and switches workspace tabs
   assert.equal(connectBtn.textContent, "Connect to ESP32");
   assert.equal(app.elements.get("connectionBadge").className.includes("disconnected"), true);
 });
+
+test("tunes channel from table row via direct tune button and double click", async () => {
+  const app = createApp();
+  await connectAndStartExport(app);
+
+  const csv = [
+    "\uFEFF\"channel_number\",\"channel_name\",\"input_id\",\"broadcast_type\",\"service_type\",\"broadcast_visibility_type\",\"browsable\",\"locked\"\r\n",
+    "\"42\",\"Test Channel\",\"tuner\",\"TYPE_DVB_S\",\"AUDIO_VIDEO\",\"VISIBLE\",\"true\",\"false\"\r\n"
+  ].join("");
+  const encoder = new TextEncoder();
+  const csvBytes = encoder.encode(csv);
+  const requestId = "d".repeat(32);
+  const frame = encoder.encode(
+    `tv> tv-export\r\nTVCSV_BEGIN:${requestId}:${csvBytes.length}\r\n${csv}\r\nTVCSV_END:${requestId}\r\n`
+  );
+
+  app.state.controller.enqueue(frame);
+  await new Promise((resolve) => setTimeout(resolve, 20));
+
+  assert.equal(app.elements.get("tableBody").children.length, 1);
+  const row = app.elements.get("tableBody").children[0];
+  const orderCell = row.children[0];
+  // orderCell has: textNode (0), upButton (1), downButton (2), tuneButton (3)
+  const tuneBtn = orderCell.children[3];
+  assert.equal(tuneBtn.textContent, "▶");
+
+  // Clear previous writes
+  app.state.writes.length = 0;
+
+  // Click tune button
+  await tuneBtn.dispatch("click");
+  // Allow timeouts to fire
+  await new Promise((resolve) => setTimeout(resolve, 400));
+
+  const decoder = new TextDecoder();
+  const sentCommands = app.state.writes.map((w) => decoder.decode(w));
+  // Digit 4 -> keycode 11 (4 + 7)
+  // Digit 2 -> keycode 9 (2 + 7)
+  // Enter -> keycode 23
+  assert.ok(sentCommands.includes("tv-key 11\r\n"));
+  assert.ok(sentCommands.includes("tv-key 9\r\n"));
+  assert.ok(sentCommands.includes("tv-key 23\r\n"));
+});
+

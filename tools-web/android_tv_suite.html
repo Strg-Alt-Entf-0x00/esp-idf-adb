@@ -312,52 +312,224 @@
       .serial-command-row { align-items: stretch; flex-direction: column; }
     }
 
-    .remote-panel { margin-bottom: 16px; padding: 15px 16px; }
-    .remote-header strong { display: block; font-size: 15px; }
-    .remote-header span { display: block; margin-top: 4px; color: var(--muted); font-size: 13px; }
-    .remote-grid-layout { display: flex; flex-direction: column; gap: 14px; margin-top: 14px; }
-    .remote-group { display: flex; flex-direction: column; gap: 8px; }
-    .group-title { color: #becbd8; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
-    .remote-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-    .remote-row input { flex: 1 1 200px; min-height: 38px; padding: 6px 10px; border: 1px solid #3b4857; border-radius: 7px; color: var(--ink); background: #121a23; }
-    .dpad-container { display: flex; flex-direction: column; align-items: center; gap: 10px; background: #131a22; padding: 14px; border-radius: 10px; border: 1px solid #283340; max-width: 440px; margin: 0 auto; }
-    .dpad-grid { display: grid; grid-template-columns: repeat(3, 52px); grid-template-rows: repeat(3, 46px); gap: 6px; justify-content: center; }
-    .dpad-btn { font-size: 14px; font-weight: bold; }
-    .dpad-center { background: #1f3a52; color: #a5d2ff; }
-    .top-row, .nav-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
-    .remote-btn { min-height: 38px; padding: 6px 14px; font-size: 13px; font-weight: 600; }
-    .app-launcher-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-    .app-launcher-row select { flex: 1 1 260px; min-height: 38px; padding: 6px 10px; border: 1px solid #3b4857; border-radius: 7px; color: var(--ink); background: #121a23; }
+    .top-controls-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+      gap: 14px;
+      margin: 14px 0 16px;
+    }
+    .mini-panel {
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .mini-panel-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #becbd8;
+    }
+    .mini-panel-header svg { stroke: var(--blue); }
+    .mini-panel-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .mini-panel-row input, .mini-panel-row select {
+      flex: 1;
+      min-height: 38px;
+      padding: 6px 10px;
+      border: 1px solid #3b4857;
+      border-radius: 7px;
+      color: var(--ink);
+      background: #121a23;
+    }
 
-    .top-actions { display: flex; align-items: center; gap: 10px; }
-    .badge {
-      display: inline-flex; align-items: center; gap: 7px;
-      padding: 6px 12px; border-radius: 999px; font-size: 13px; font-weight: 650;
-      border: 1px solid var(--line);
+    .suite-layout {
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
     }
-    .badge.disconnected { background: #1c2128; border-color: #373e47; color: var(--muted); }
-    .badge.connecting { background: #2f2312; border-color: #73531b; color: #ffbe5c; }
-    .badge.connected { background: #132a1c; border-color: #26653b; color: #7ee787; }
-    .badge-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+    .main-content {
+      flex: 1 1 0%;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .remote-sidebar {
+      flex: 0 0 248px;
+      position: sticky;
+      top: 16px;
+      transition: all 0.2s ease;
+    }
+    .remote-sidebar.hidden { display: none !important; }
 
-    .tabs-nav {
-      display: flex; gap: 4px; border-bottom: 1px solid var(--line);
-      margin: 18px 0 16px; overflow-x: auto;
+    @media (max-width: 1100px) {
+      .suite-layout { flex-direction: column; }
+      .remote-sidebar { width: 100%; max-width: 280px; margin: 0 auto; position: static; }
     }
-    .tab-btn {
-      display: inline-flex; align-items: center; gap: 8px;
-      padding: 10px 18px; border: none; border-bottom: 2px solid transparent;
-      border-radius: 8px 8px 0 0; background: transparent;
-      color: var(--muted); font-size: 14px; font-weight: 600; cursor: pointer;
-      white-space: nowrap; transition: all .15s ease;
+
+    .tv-remote {
+      background: #141b24;
+      border: 2px solid #2a3747;
+      border-radius: 36px;
+      padding: 20px 14px 24px;
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      user-select: none;
     }
-    .tab-btn:hover { color: var(--ink); background: #1a2430; }
-    .tab-btn.active {
-      color: var(--blue); border-bottom-color: var(--blue);
-      background: #17222e;
+    .remote-top-notch {
+      width: 32px;
+      height: 4px;
+      border-radius: 2px;
+      background: #2a3747;
+      margin: -6px auto 4px;
     }
-    .tab-pane { display: none; }
-    .tab-pane.active { display: block; }
+    .remote-row-duo {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .remote-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 7px;
+    }
+    .remote-rockers-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 7px;
+      align-items: center;
+    }
+    .remote-rocker-col {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .remote-rocker-col .remote-btn {
+      min-height: 38px;
+      font-size: 14px;
+      font-weight: 700;
+    }
+    .rocker-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      text-align: center;
+      letter-spacing: .05em;
+    }
+    .remote-center-col {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .remote-dpad-cluster {
+      background: #10161f;
+      padding: 9px;
+      border-radius: 18px;
+      border: 1px solid #24303e;
+    }
+    .remote-colors-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+    }
+    .color-btn {
+      height: 14px;
+      min-height: 14px;
+      border-radius: 4px;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      opacity: 0.85;
+      transition: opacity 0.15s ease, transform 0.12s ease;
+    }
+    .color-btn:hover:not(:disabled) {
+      opacity: 1;
+      transform: scale(1.05);
+    }
+    .color-red { background: #ef4444 !important; }
+    .color-green { background: #10b981 !important; }
+    .color-yellow { background: #f59e0b !important; }
+    .color-blue { background: #3b82f6 !important; }
+
+    .remote-btn {
+      min-height: 34px;
+      padding: 5px 6px;
+      font-size: 12px;
+      font-weight: 650;
+      border-radius: 8px;
+      background: #1e2733;
+      border: 1px solid #334253;
+      color: #dce7f2;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.12s ease;
+    }
+    .remote-btn:hover:not(:disabled) {
+      background: #293646;
+      border-color: #556c87;
+      color: #fff;
+    }
+    .remote-btn:active:not(:disabled) {
+      transform: scale(0.96);
+      background: #19222c;
+    }
+    .remote-btn.btn-power {
+      background: #2b1717;
+      border-color: #7f2828;
+      color: #f87171;
+    }
+    .remote-btn.btn-power:hover:not(:disabled) {
+      background: #401f1f;
+      border-color: #ef4444;
+      color: #fff;
+    }
+    .remote-btn.btn-dpad-ok {
+      background: #17324c;
+      border-color: #2b5780;
+      color: #8cc4fc;
+      font-weight: 750;
+    }
+    .remote-btn.btn-dpad-ok:hover:not(:disabled) {
+      background: #1e4266;
+      border-color: #4b89c7;
+      color: #fff;
+    }
+    .font-sm { font-size: 10px !important; letter-spacing: .02em; }
+    .text-red { color: #f87171 !important; }
+
+    .tune-btn {
+      min-width: 25px;
+      min-height: 25px;
+      padding: 2px 5px;
+      border-radius: 5px;
+      border: 1px solid #285435;
+      background: #142d1c;
+      color: #6ee7b7;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-left: 4px;
+      transition: all 0.15s ease;
+      font-size: 11px;
+    }
+    .tune-btn:hover:not(:disabled) {
+      background: #1a4228;
+      border-color: #34d399;
+      color: #a7f3d0;
+      transform: scale(1.08);
+    }
+    tbody tr { cursor: pointer; }
   </style>
 </head>
 <body>
@@ -382,212 +554,279 @@
       <p>All channel edits stay on this PC and are never uploaded. Commands are sent exclusively to your connected ESP32 via USB Web Serial.</p>
     </section>
 
-    <nav class="tabs-nav" role="tablist" aria-label="Workspace tabs">
-      <button id="tabBtnChannels" class="tab-btn active" role="tab" aria-selected="true" data-tab-target="tabChannels">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><polyline points="17 2 12 7 7 2"/></svg>
-        <span>TV Channels</span>
-      </button>
-      <button id="tabBtnRemote" class="tab-btn" role="tab" aria-selected="false" data-tab-target="tabRemote">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="2" width="12" height="20" rx="3"/><circle cx="12" cy="7" r="1.5" fill="currentColor"/><polyline points="10 13 14 13"/><polyline points="12 11 12 15"/><circle cx="12" cy="18" r="1" fill="currentColor"/></svg>
-        <span>Remote & Apps</span>
-      </button>
-    </nav>
-
-    <!-- TAB 1: TV Channels -->
-    <div id="tabChannels" class="tab-pane active" role="tabpanel">
-      <section id="dropZone" class="panel load-panel drop-zone" aria-label="Load a CSV file">
-        <div class="load-copy">
-          <strong>Channel list actions</strong>
-          <span>Export channels from your connected TV over USB, or load a local CSV file.</span>
+    <!-- TOP CONTROLS: TARGET TV & APPS -->
+    <div class="top-controls-grid">
+      <!-- Target TV Card -->
+      <section class="panel mini-panel" aria-label="Target TV Connection">
+        <div class="mini-panel-header">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1" fill="currentColor"/></svg>
+          <span>Target TV Connection</span>
         </div>
-        <div class="load-actions">
-          <button id="serialExportButton" class="btn-icon primary" type="button" title="Read TV channel list over USB" aria-label="Read TV channel list" disabled>
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            <span class="btn-label">Read TV channel list</span>
+        <div class="mini-panel-row">
+          <input id="tvHostInput" type="text" value="192.168.178.21" placeholder="TV IP (e.g. 192.168.1.50)" spellcheck="false" disabled>
+          <button id="tvConnectButton" class="btn-icon" type="button" title="Connect TV (tv-connect)" aria-label="Connect TV" disabled>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1" fill="currentColor"/></svg>
+            <span class="btn-label">Connect TV</span>
           </button>
-          <button id="openButton" class="btn-icon" type="button" title="Open local CSV file" aria-label="Open CSV">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2z"/></svg>
-            <span class="btn-label">Open CSV</span>
+          <button id="tvInfoButton" class="btn-icon" type="button" title="Device Info (tv-device-info)" aria-label="Device Info" disabled>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            <span class="btn-label">Device Info</span>
           </button>
-          <button id="exportButton" class="btn-icon" type="button" title="Download CSV draft" aria-label="Download CSV draft" disabled>
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-            <span class="btn-label">Download CSV draft</span>
-          </button>
-          <button id="resetButton" class="btn-icon" type="button" title="Reset draft" aria-label="Reset draft" disabled>
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><polyline points="3 3 3 8 8 8"/></svg>
-            <span class="btn-label">Reset draft</span>
+          <button id="tvStatusButton" class="btn-icon" type="button" title="TV Status (tv-status)" aria-label="TV Status" disabled>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            <span class="btn-label">TV Status</span>
           </button>
         </div>
-        <input id="fileInput" class="hidden" type="file" accept=".csv,text/csv">
       </section>
 
-      <section id="summary" class="summary hidden" aria-label="CSV summary" aria-live="polite">
-        <article class="panel stat"><strong id="statRows">0</strong><span>Channel rows</span></article>
-        <article class="panel stat"><strong id="statUnnumbered">0</strong><span>missing channel number</span></article>
-        <article class="panel stat"><strong id="statUnnamed">0</strong><span>missing channel name</span></article>
-        <article class="panel stat"><strong id="statDotNames">0</strong><span>dot-like channel names</span></article>
-        <article id="duplicateStat" class="panel stat"><strong id="statDuplicates">0</strong><span>duplicate numbers per input</span></article>
-      </section>
-
-      <section class="panel workspace" aria-label="Channel list">
-        <div class="toolbar">
-          <div class="field">
-            <label for="searchInput">Search channel list</label>
-            <input id="searchInput" type="search" placeholder="Name, number, type, or TV input" disabled>
-          </div>
-          <div class="field compact">
-            <label for="sortSelect">Sort view</label>
-            <select id="sortSelect" disabled>
-              <option value="manual">Draft order</option>
-              <option value="number">Channel number</option>
-              <option value="name">Channel name</option>
-              <option value="broadcast">Broadcast type</option>
-            </select>
-          </div>
-          <div class="toolbar-info">Sorting changes the view only. To change the draft order, select “Draft order” and drag rows or use the arrow buttons.</div>
+      <!-- App Launcher Card -->
+      <section class="panel mini-panel" aria-label="Installed TV Apps">
+        <div class="mini-panel-header">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          <span>Installed TV Apps</span>
         </div>
-
-        <div class="table-wrap">
-          <table aria-describedby="tableHelp">
-            <caption class="sr-only">TV channel rows from a local CSV file</caption>
-            <thead>
-              <tr>
-                <th class="order-cell" scope="col">Draft order</th>
-                <th scope="col">Channel number</th>
-                <th scope="col">Channel name</th>
-                <th scope="col">Broadcast type</th>
-                <th scope="col">Service type</th>
-                <th scope="col">Visibility</th>
-                <th scope="col">Browsable</th>
-                <th scope="col">Locked</th>
-                <th scope="col">TV input / input ID</th>
-              </tr>
-            </thead>
-            <tbody id="tableBody">
-              <tr><td class="empty" colspan="9"><strong>No channel list loaded</strong>Open a CSV file, drop it here, or read it directly from your TV.</td></tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div class="table-footer">
-          <span id="tableCount">No data loaded</span>
+        <div class="mini-panel-row">
+          <select id="tvAppSelect" disabled>
+            <option value="">-- No apps discovered yet (Click 'Query Apps') --</option>
+          </select>
+          <button id="tvFetchAppsButton" class="btn-icon" type="button" title="Query Installed Apps (tv-app-list)" aria-label="Query Apps" disabled>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            <span class="btn-label">Query Apps</span>
+          </button>
+          <button id="tvLaunchAppButton" class="btn-icon primary" type="button" title="Launch Selected App" aria-label="Launch" disabled>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3" fill="currentColor"/></svg>
+            <span class="btn-label">Launch</span>
+          </button>
+          <button id="tvStopAppButton" class="btn-icon danger" type="button" title="Stop Selected App" aria-label="Stop" disabled>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2" fill="currentColor"/></svg>
+            <span class="btn-label">Stop</span>
+          </button>
         </div>
       </section>
     </div>
 
-    <!-- TAB 2: Remote & Apps -->
-    <div id="tabRemote" class="tab-pane" role="tabpanel">
-      <section class="panel remote-panel" aria-label="Android TV Remote & Controls">
-        <div class="remote-header">
-          <strong>Android TV Remote & App Controls</strong>
-          <span>Manage device connection, launch or stop TV apps, and control navigation via the ESP32.</span>
-        </div>
-
-        <div class="remote-grid-layout">
-          <div class="remote-group">
-            <span class="group-title">Target TV Connection</span>
-            <div class="remote-row">
-              <input id="tvHostInput" type="text" value="192.168.178.21" placeholder="TV IP (e.g. 192.168.1.50)" spellcheck="false" disabled>
-              <button id="tvConnectButton" class="btn-icon" type="button" title="Connect TV (tv-connect)" aria-label="Connect TV" disabled>
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1" fill="currentColor"/></svg>
-                <span class="btn-label">Connect TV</span>
-              </button>
-              <button id="tvInfoButton" class="btn-icon" type="button" title="Device Info (tv-device-info)" aria-label="Device Info" disabled>
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-                <span class="btn-label">Device Info</span>
-              </button>
-              <button id="tvStatusButton" class="btn-icon" type="button" title="TV Status (tv-status)" aria-label="TV Status" disabled>
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-                <span class="btn-label">TV Status</span>
-              </button>
-            </div>
+    <!-- MAIN UNIFIED WORKSPACE WITH SIDEBAR REMOTE -->
+    <div class="suite-layout">
+      <!-- MAIN CONTENT: CHANNEL MANAGER -->
+      <div class="main-content">
+        <section id="dropZone" class="panel load-panel drop-zone" aria-label="Load a CSV file">
+          <div class="load-copy">
+            <strong>Channel list actions</strong>
+            <span>Export channels from your connected TV over USB, or load a local CSV file.</span>
           </div>
-
-          <div class="remote-group">
-            <span class="group-title">Virtual Remote Control</span>
-            <div class="dpad-container">
-              <div class="remote-row top-row">
-                <button type="button" class="remote-btn" data-tv-cmd="tv-key power" title="Power" disabled>
-                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>
-                  <span>Power</span>
-                </button>
-                <button type="button" class="remote-btn" data-tv-cmd="tv-key mute" title="Mute" disabled>
-                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
-                  <span>Mute</span>
-                </button>
-                <button type="button" class="remote-btn" data-tv-cmd="tv-volume down 1" title="Volume Down" disabled>
-                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="16" y1="12" x2="22" y2="12"/></svg>
-                  <span>Vol -</span>
-                </button>
-                <button type="button" class="remote-btn" data-tv-cmd="tv-volume up 1" title="Volume Up" disabled>
-                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="19" y1="9" x2="19" y2="15"/><line x1="16" y1="12" x2="22" y2="12"/></svg>
-                  <span>Vol +</span>
-                </button>
-              </div>
-
-              <div class="dpad-grid">
-                <div></div>
-                <button type="button" class="remote-btn dpad-btn" data-tv-cmd="tv-key up" title="Up" disabled>
-                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
-                </button>
-                <div></div>
-                <button type="button" class="remote-btn dpad-btn" data-tv-cmd="tv-key left" title="Left" disabled>
-                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-                </button>
-                <button type="button" class="remote-btn dpad-btn dpad-center" data-tv-cmd="tv-key ok" title="OK / Select" disabled>OK</button>
-                <button type="button" class="remote-btn dpad-btn" data-tv-cmd="tv-key right" title="Right" disabled>
-                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
-                </button>
-                <div></div>
-                <button type="button" class="remote-btn dpad-btn" data-tv-cmd="tv-key down" title="Down" disabled>
-                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
-                </button>
-                <div></div>
-              </div>
-
-              <div class="remote-row nav-row">
-                <button type="button" class="remote-btn" data-tv-cmd="tv-key back" title="Back" disabled>
-                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>
-                  <span>Back</span>
-                </button>
-                <button type="button" class="remote-btn" data-tv-cmd="tv-key home" title="Home" disabled>
-                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-                  <span>Home</span>
-                </button>
-                <button type="button" class="remote-btn" data-tv-cmd="tv-key menu" title="Menu" disabled>
-                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-                  <span>Menu</span>
-                </button>
-                <button type="button" class="remote-btn" data-tv-cmd="tv-key voice-assist" title="Voice Assist" disabled>
-                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
-                  <span>Assist</span>
-                </button>
-              </div>
-            </div>
+          <div class="load-actions">
+            <button id="serialExportButton" class="btn-icon primary" type="button" title="Read TV channel list over USB" aria-label="Read TV channel list" disabled>
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              <span class="btn-label">Read TV channel list</span>
+            </button>
+            <button id="openButton" class="btn-icon" type="button" title="Open local CSV file" aria-label="Open CSV">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2z"/></svg>
+              <span class="btn-label">Open CSV</span>
+            </button>
+            <button id="exportButton" class="btn-icon" type="button" title="Download CSV draft" aria-label="Download CSV draft" disabled>
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+              <span class="btn-label">Download CSV draft</span>
+            </button>
+            <button id="resetButton" class="btn-icon" type="button" title="Reset draft" aria-label="Reset draft" disabled>
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><polyline points="3 3 3 8 8 8"/></svg>
+              <span class="btn-label">Reset draft</span>
+            </button>
           </div>
+          <input id="fileInput" class="hidden" type="file" accept=".csv,text/csv">
+        </section>
 
-          <div class="remote-group">
-            <span class="group-title">Installed TV Apps</span>
-            <div class="app-launcher-row">
-              <select id="tvAppSelect" disabled>
-                <option value="">-- No apps discovered yet (Click 'Query Apps') --</option>
+        <section id="summary" class="summary hidden" aria-label="CSV summary" aria-live="polite">
+          <article class="panel stat"><strong id="statRows">0</strong><span>Channel rows</span></article>
+          <article class="panel stat"><strong id="statUnnumbered">0</strong><span>missing channel number</span></article>
+          <article class="panel stat"><strong id="statUnnamed">0</strong><span>missing channel name</span></article>
+          <article class="panel stat"><strong id="statDotNames">0</strong><span>dot-like channel names</span></article>
+          <article id="duplicateStat" class="panel stat"><strong id="statDuplicates">0</strong><span>duplicate numbers per input</span></article>
+        </section>
+
+        <section class="panel workspace" aria-label="Channel list">
+          <div class="toolbar">
+            <div class="field">
+              <label for="searchInput">Search channel list</label>
+              <input id="searchInput" type="search" placeholder="Name, number, type, or TV input" disabled>
+            </div>
+            <div class="field compact">
+              <label for="sortSelect">Sort view</label>
+              <select id="sortSelect" disabled>
+                <option value="manual">Draft order</option>
+                <option value="number">Channel number</option>
+                <option value="name">Channel name</option>
+                <option value="broadcast">Broadcast type</option>
               </select>
-              <button id="tvFetchAppsButton" class="btn-icon" type="button" title="Query Installed Apps (tv-app-list)" aria-label="Query Apps" disabled>
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-                <span class="btn-label">Query Apps</span>
+            </div>
+            <div class="field compact" style="flex: 0 0 auto;">
+              <label>&nbsp;</label>
+              <button id="toggleRemoteBtn" class="btn-icon" type="button" title="Toggle Remote Control sidebar">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="2" width="12" height="20" rx="3"/><circle cx="12" cy="7" r="1.5" fill="currentColor"/><polyline points="10 13 14 13"/><polyline points="12 11 12 15"/><circle cx="12" cy="18" r="1" fill="currentColor"/></svg>
+                <span>Remote</span>
               </button>
-              <button id="tvLaunchAppButton" class="btn-icon primary" type="button" title="Launch Selected App" aria-label="Launch" disabled>
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3" fill="currentColor"/></svg>
-                <span class="btn-label">Launch</span>
+            </div>
+            <div class="toolbar-info">Click ▶ on any channel (or double-click) to tune the TV instantly. Drag rows or use ↑/↓ to change draft order.</div>
+          </div>
+
+          <div class="table-wrap">
+            <table aria-describedby="tableHelp">
+              <caption class="sr-only">TV channel rows from a local CSV file</caption>
+              <thead>
+                <tr>
+                  <th class="order-cell" scope="col">Draft order</th>
+                  <th scope="col">Channel number</th>
+                  <th scope="col">Channel name</th>
+                  <th scope="col">Broadcast type</th>
+                  <th scope="col">Service type</th>
+                  <th scope="col">Visibility</th>
+                  <th scope="col">Browsable</th>
+                  <th scope="col">Locked</th>
+                  <th scope="col">TV input / input ID</th>
+                </tr>
+              </thead>
+              <tbody id="tableBody">
+                <tr><td class="empty" colspan="9"><strong>No channel list loaded</strong>Open a CSV file, drop it here, or read it directly from your TV.</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="table-footer">
+            <span id="tableCount">No data loaded</span>
+          </div>
+        </section>
+      </div>
+
+      <!-- AUTHENTIC TV REMOTE CONTROL SIDEBAR -->
+      <aside id="remoteSidebar" class="remote-sidebar" aria-label="Virtual Remote Control">
+        <div class="tv-remote">
+          <div class="remote-top-notch" aria-hidden="true"></div>
+          
+          <!-- Top Row: Mute & Power -->
+          <div class="remote-row-duo">
+            <button type="button" class="remote-btn" data-tv-cmd="tv-key mute" title="Mute (tv-key mute)" disabled>
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+            </button>
+            <button type="button" class="remote-btn btn-power" data-tv-cmd="tv-key power" title="Power (tv-key power)" disabled>
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>
+            </button>
+          </div>
+
+          <!-- Number Pad: 1-9, PRE-CH, 0, LIST -->
+          <div class="remote-grid">
+            <button type="button" class="remote-btn" data-tv-cmd="tv-key 8" title="1" disabled>1</button>
+            <button type="button" class="remote-btn" data-tv-cmd="tv-key 9" title="2" disabled>2</button>
+            <button type="button" class="remote-btn" data-tv-cmd="tv-key 10" title="3" disabled>3</button>
+            <button type="button" class="remote-btn" data-tv-cmd="tv-key 11" title="4" disabled>4</button>
+            <button type="button" class="remote-btn" data-tv-cmd="tv-key 12" title="5" disabled>5</button>
+            <button type="button" class="remote-btn" data-tv-cmd="tv-key 13" title="6" disabled>6</button>
+            <button type="button" class="remote-btn" data-tv-cmd="tv-key 14" title="7" disabled>7</button>
+            <button type="button" class="remote-btn" data-tv-cmd="tv-key 15" title="8" disabled>8</button>
+            <button type="button" class="remote-btn" data-tv-cmd="tv-key 16" title="9" disabled>9</button>
+            <button type="button" class="remote-btn font-sm" data-tv-cmd="tv-key 229" title="Previous Channel (PRE-CH)" disabled>PRE-CH</button>
+            <button type="button" class="remote-btn" data-tv-cmd="tv-key 7" title="0" disabled>0</button>
+            <button type="button" class="remote-btn font-sm" data-tv-cmd="tv-key 257" title="Channel List (LIST)" disabled>LIST</button>
+          </div>
+
+          <!-- Volume, Center Info/Settings, Program Rockers -->
+          <div class="remote-rockers-grid">
+            <!-- Left: Vol Rocker -->
+            <div class="remote-rocker-col">
+              <button type="button" class="remote-btn" data-tv-cmd="tv-volume up 1" title="Volume Up" disabled>+</button>
+              <span class="rocker-label">VOL</span>
+              <button type="button" class="remote-btn" data-tv-cmd="tv-volume down 1" title="Volume Down" disabled>−</button>
+            </div>
+
+            <!-- Center: Info & Settings -->
+            <div class="remote-center-col">
+              <button type="button" class="remote-btn" data-tv-cmd="tv-key 165" title="Info" disabled>
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
               </button>
-              <button id="tvStopAppButton" class="btn-icon danger" type="button" title="Stop Selected App" aria-label="Stop" disabled>
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2" fill="currentColor"/></svg>
-                <span class="btn-label">Stop</span>
+              <button type="button" class="remote-btn" data-tv-cmd="tv-key 176" title="Settings" disabled>
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+              </button>
+            </div>
+
+            <!-- Right: Program Rocker -->
+            <div class="remote-rocker-col">
+              <button type="button" class="remote-btn" data-tv-cmd="tv-key 166" title="Channel Up (P+)" disabled>∧</button>
+              <span class="rocker-label">P</span>
+              <button type="button" class="remote-btn" data-tv-cmd="tv-key 167" title="Channel Down (P-)" disabled>∨</button>
+            </div>
+          </div>
+
+          <!-- D-Pad Navigation & System -->
+          <div class="remote-dpad-cluster">
+            <div class="remote-grid">
+              <button type="button" class="remote-btn" data-tv-cmd="tv-key home" title="Home" disabled>
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+              </button>
+              <button type="button" class="remote-btn" data-tv-cmd="tv-key up" title="Up" disabled>
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+              </button>
+              <button type="button" class="remote-btn" data-tv-cmd="tv-key menu" title="Menu" disabled>
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+              </button>
+
+              <button type="button" class="remote-btn" data-tv-cmd="tv-key left" title="Left" disabled>
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+              </button>
+              <button type="button" class="remote-btn btn-dpad-ok" data-tv-cmd="tv-key ok" title="OK / Select" disabled>OK</button>
+              <button type="button" class="remote-btn" data-tv-cmd="tv-key right" title="Right" disabled>
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+
+              <button type="button" class="remote-btn" data-tv-cmd="tv-key back" title="Back" disabled>
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>
+              </button>
+              <button type="button" class="remote-btn" data-tv-cmd="tv-key down" title="Down" disabled>
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <button type="button" class="remote-btn" data-tv-cmd="tv-key 178" title="Input Source" disabled>
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
               </button>
             </div>
           </div>
+
+          <!-- Function Keys: EXIT, GUIDE, TEXT, LANG, SUBT. -->
+          <div class="remote-grid">
+            <button type="button" class="remote-btn font-sm" data-tv-cmd="tv-key 4" title="Exit" disabled>EXIT</button>
+            <button type="button" class="remote-btn font-sm" data-tv-cmd="tv-key 172" title="TV Guide (EPG)" disabled>GUIDE</button>
+            <button type="button" class="remote-btn font-sm" data-tv-cmd="tv-key 233" title="Teletext (TEXT)" disabled>TEXT</button>
+          </div>
+          <div class="remote-row-duo">
+            <button type="button" class="remote-btn font-sm" data-tv-cmd="tv-key 234" title="Language (LANG)" disabled>LANG</button>
+            <button type="button" class="remote-btn font-sm" data-tv-cmd="tv-key 175" title="Subtitles (SUBT.)" disabled>SUBT.</button>
+          </div>
+
+          <!-- 4 Color Keys: Red, Green, Yellow, Blue -->
+          <div class="remote-colors-row">
+            <button type="button" class="color-btn color-red remote-btn" data-tv-cmd="tv-key 183" title="Red Key" disabled></button>
+            <button type="button" class="color-btn color-green remote-btn" data-tv-cmd="tv-key 184" title="Green Key" disabled></button>
+            <button type="button" class="color-btn color-yellow remote-btn" data-tv-cmd="tv-key 185" title="Yellow Key" disabled></button>
+            <button type="button" class="color-btn color-blue remote-btn" data-tv-cmd="tv-key 186" title="Blue Key" disabled></button>
+          </div>
+
+          <!-- Media Controls: <<, ||, >>, REC, Play, Stop -->
+          <div class="remote-grid">
+            <button type="button" class="remote-btn" data-tv-cmd="tv-key 89" title="Rewind" disabled>
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><polygon points="11 19 2 12 11 5 11 19"/><polygon points="22 19 13 12 22 5 22 19"/></svg>
+            </button>
+            <button type="button" class="remote-btn" data-tv-cmd="tv-key 127" title="Pause" disabled>
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+            </button>
+            <button type="button" class="remote-btn" data-tv-cmd="tv-key 90" title="Fast Forward" disabled>
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><polygon points="13 19 22 12 13 5 13 19"/><polygon points="2 19 11 12 2 5 2 19"/></svg>
+            </button>
+            <button type="button" class="remote-btn font-sm text-red" data-tv-cmd="tv-key 130" title="Record" disabled>● REC</button>
+            <button type="button" class="remote-btn" data-tv-cmd="tv-key 126" title="Play" disabled>
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            </button>
+            <button type="button" class="remote-btn" data-tv-cmd="tv-key 86" title="Stop" disabled>
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><rect x="5" y="5" width="14" height="14"/></svg>
+            </button>
+          </div>
         </div>
-      </section>
+      </aside>
     </div>
 
     <!-- FIXED DOCKED BOTTOM SERIAL CONSOLE -->
@@ -677,6 +916,8 @@
         dockedConsole: document.getElementById("dockedConsole"),
         dockedConsoleHeader: document.getElementById("dockedConsoleHeader"),
         consoleToggleBtn: document.getElementById("consoleToggleBtn"),
+        toggleRemoteBtn: document.getElementById("toggleRemoteBtn"),
+        remoteSidebar: document.getElementById("remoteSidebar"),
         tvHostInput: document.getElementById("tvHostInput"),
         tvConnectButton: document.getElementById("tvConnectButton"),
         tvInfoButton: document.getElementById("tvInfoButton"),
@@ -790,6 +1031,11 @@
         if (elements.tvStopAppButton) elements.tvStopAppButton.disabled = !connected || serialExportInProgress;
         if (elements.remoteButtons) {
           elements.remoteButtons.forEach((btn) => {
+            btn.disabled = !connected || serialExportInProgress;
+          });
+        }
+        if (document.querySelectorAll) {
+          document.querySelectorAll(".tune-btn").forEach((btn) => {
             btn.disabled = !connected || serialExportInProgress;
           });
         }
@@ -1440,6 +1686,36 @@
         render();
       }
 
+      function tuneChannel(channelNumber, channelName) {
+        if (!serialPort) {
+          setSerialStatus("Connect to the ESP32 first to tune channels.", true);
+          return;
+        }
+        if (!channelNumber) return;
+        const cleanNumber = String(channelNumber).trim();
+        if (!cleanNumber) return;
+
+        setSerialStatus(`Tuning TV to Channel ${cleanNumber} (${channelName || "Live TV"})…`);
+        setStatus(`Tuning TV to Channel ${cleanNumber} (${channelName || "Live TV"})…`);
+
+        const digits = cleanNumber.replace(/[^0-9]/g, "").split("");
+        if (digits.length === 0) return;
+
+        let delay = 0;
+        digits.forEach((digit) => {
+          const keycode = Number(digit) + 7;
+          window.setTimeout(() => {
+            sendSerialCommand(`tv-key ${keycode}`);
+          }, delay);
+          delay += 140;
+        });
+
+        window.setTimeout(() => {
+          sendSerialCommand("tv-key 23");
+          setSerialStatus(`Tuned to Channel ${cleanNumber} (${channelName || "Live TV"}).`);
+        }, delay);
+      }
+
       function render() {
         if (!table) return;
         const filtered = visibleRows();
@@ -1479,7 +1755,22 @@
           downButton.setAttribute("aria-label", `Move row ${index + 1} down`);
           downButton.disabled = !manualOrder || index === table.rows.length - 1;
           downButton.addEventListener("click", () => moveRow(index, index + 1));
-          orderCell.append(upButton, downButton);
+
+          const tuneButton = document.createElement("button");
+          tuneButton.type = "button";
+          tuneButton.className = "tune-btn";
+          const chNum = item.values[columnIndex("channel_number")];
+          const chName = item.values[columnIndex("channel_name")];
+          tuneButton.title = `Tune TV to Channel ${chNum || index + 1} (${chName || "Live TV"})`;
+          tuneButton.setAttribute("aria-label", tuneButton.title);
+          tuneButton.textContent = "▶";
+          tuneButton.disabled = !serialPort;
+          tuneButton.addEventListener("click", (e) => {
+            if (e.stopPropagation) e.stopPropagation();
+            tuneChannel(chNum, chName);
+          });
+
+          orderCell.append(upButton, downButton, tuneButton);
           tr.append(orderCell);
 
           for (const [key] of COLUMNS) {
@@ -1498,6 +1789,19 @@
             }
             tr.append(cell);
           }
+
+          tr.addEventListener("dblclick", (event) => {
+            if (event.target && event.target.tagName === "INPUT") return;
+            const chNum = item.values[columnIndex("channel_number")];
+            const chName = item.values[columnIndex("channel_name")];
+            tuneChannel(chNum, chName);
+          });
+          tr.addEventListener("contextmenu", (event) => {
+            if (event.preventDefault) event.preventDefault();
+            const chNum = item.values[columnIndex("channel_number")];
+            const chName = item.values[columnIndex("channel_name")];
+            tuneChannel(chNum, chName);
+          });
 
           tr.addEventListener("dragstart", (event) => {
             if (!canReorder()) {
@@ -1712,6 +2016,11 @@
       });
       elements.dockedConsoleHeader?.addEventListener("click", () => {
         toggleConsole();
+      });
+
+      elements.toggleRemoteBtn?.addEventListener("click", () => {
+        if (!elements.remoteSidebar) return;
+        elements.remoteSidebar.classList.toggle("hidden");
       });
 
       elements.tvConnectButton?.addEventListener("click", () => {
