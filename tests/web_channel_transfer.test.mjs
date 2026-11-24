@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import vm from "node:vm";
 
-const html = readFileSync(new URL("../tools-web/tv_channel_manager.html", import.meta.url), "utf8");
+const html = readFileSync(new URL("../tools-web/android_tv_suite.html", import.meta.url), "utf8");
 const inlineScript = html.match(/<script>([\s\S]*?)<\/script>/)?.[1];
 assert.ok(inlineScript, "expected the web app to contain one inline script");
 
@@ -106,7 +106,7 @@ function createApp() {
     Uint8Array,
     Intl
   };
-  vm.runInNewContext(inlineScript, context, { filename: "tools-web/tv_channel_manager.html" });
+  vm.runInNewContext(inlineScript, context, { filename: "tools-web/android_tv_suite.html" });
   return { elements, state };
 }
 
