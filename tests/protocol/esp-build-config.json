@@ -7,15 +7,20 @@
         "path": null
     },
     "serial": {
-        "monitor_baudrate": 115200,
         "port": null,
-        "flash_baudrate": null
+        "flash_baudrate": null,
+        "monitor_baudrate": 115200
     },
     "storage": {
         "flash_images": false
     },
     "build": {
         "ccache": true
+    },
+    "logging": {
+        "enabled": true,
+        "directory": ".logs",
+        "keep_last_n_logs": 50
     },
     "version": 1
 }
