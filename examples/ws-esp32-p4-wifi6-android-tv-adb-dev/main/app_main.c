@@ -410,7 +410,7 @@ static bool valid_wifi_password(const char *password)
     return true;
 }
 
-static int configure_wifi(const char *ssid)
+static int configure_wifi_internal(const char *ssid, const char *password_direct)
 {
     size_t ssid_length = strlen(ssid);
     if (ssid_length == 0 || ssid_length > WIFI_SSID_MAX_LENGTH) {
@@ -422,16 +422,28 @@ static int configure_wifi(const char *ssid)
     credentials.version = WIFI_CREDENTIALS_VERSION;
     credentials.ssid_length = (uint8_t)ssid_length;
     memcpy(credentials.ssid, ssid, ssid_length);
-    esp_err_t input_error = read_console_line(
-        "Wi-Fi password (hidden; empty for an open network): ",
-        credentials.password,
-        sizeof(credentials.password),
-        true);
-    if (input_error != ESP_OK) {
-        secure_zero(&credentials, sizeof(credentials));
-        printf("Password input failed: %s\n", esp_err_to_name(input_error));
-        return 1;
+
+    if (password_direct != NULL) {
+        size_t pass_length = strlen(password_direct);
+        if (pass_length > WIFI_PASSWORD_MAX_LENGTH) {
+            secure_zero(&credentials, sizeof(credentials));
+            printf("Password is too long (maximum %u characters).\n", WIFI_PASSWORD_MAX_LENGTH);
+            return 1;
+        }
+        memcpy(credentials.password, password_direct, pass_length);
+    } else {
+        esp_err_t input_error = read_console_line(
+            "Wi-Fi password (hidden; empty for an open network): ",
+            credentials.password,
+            sizeof(credentials.password),
+            true);
+        if (input_error != ESP_OK) {
+            secure_zero(&credentials, sizeof(credentials));
+            printf("Password input failed: %s\n", esp_err_to_name(input_error));
+            return 1;
+        }
     }
+
     size_t password_length = strlen(credentials.password);
     if (!valid_wifi_password(credentials.password)) {
         secure_zero(&credentials, sizeof(credentials));
@@ -513,6 +525,16 @@ failed:
     secure_zero(&previous_credentials, sizeof(previous_credentials));
     secure_zero(&credentials, sizeof(credentials));
     return 1;
+}
+
+static int configure_wifi(const char *ssid)
+{
+    return configure_wifi_internal(ssid, NULL);
+}
+
+static int configure_wifi_direct(const char *ssid, const char *password)
+{
+    return configure_wifi_internal(ssid, password);
 }
 
 static int console_wifi_setup(void)
@@ -599,10 +621,71 @@ static int forget_wifi_credentials(void)
     return 0;
 }
 
+static int console_wifi_scan(void)
+{
+    printf("Starting Wi-Fi scan...\n");
+    wifi_scan_config_t scan_config = {
+        .ssid = NULL,
+        .bssid = NULL,
+        .channel = 0,
+        .show_hidden = true,
+        .scan_type = WIFI_SCAN_TYPE_ACTIVE,
+    };
+    esp_err_t error = esp_wifi_scan_start(&scan_config, true);
+    if (error != ESP_OK) {
+        printf("Wi-Fi scan failed: %s\n", esp_err_to_name(error));
+        return 1;
+    }
+    uint16_t ap_count = 0;
+    error = esp_wifi_scan_get_ap_num(&ap_count);
+    if (error != ESP_OK) {
+        printf("Could not read Wi-Fi scan result count: %s\n", esp_err_to_name(error));
+        return 1;
+    }
+    if (ap_count == 0) {
+        printf("Wi-Fi scan complete. No networks found.\n");
+        return 0;
+    }
+    wifi_ap_record_t *ap_records = malloc(sizeof(wifi_ap_record_t) * ap_count);
+    if (ap_records == NULL) {
+        printf("Out of memory for Wi-Fi scan records.\n");
+        return 1;
+    }
+    error = esp_wifi_scan_get_ap_records(&ap_count, ap_records);
+    if (error != ESP_OK) {
+        free(ap_records);
+        printf("Could not retrieve Wi-Fi scan records: %s\n", esp_err_to_name(error));
+        return 1;
+    }
+    printf("Wi-Fi scan complete. Discovered %u APs:\n", (unsigned)ap_count);
+    for (uint16_t i = 0; i < ap_count; i++) {
+        const char *auth = "UNKNOWN";
+        switch (ap_records[i].authmode) {
+        case WIFI_AUTH_OPEN: auth = "OPEN"; break;
+        case WIFI_AUTH_WEP: auth = "WEP"; break;
+        case WIFI_AUTH_WPA_PSK: auth = "WPA"; break;
+        case WIFI_AUTH_WPA2_PSK: auth = "WPA2"; break;
+        case WIFI_AUTH_WPA_WPA2_PSK: auth = "WPA/WPA2"; break;
+        case WIFI_AUTH_WPA2_ENTERPRISE: auth = "WPA2-ENT"; break;
+        case WIFI_AUTH_WPA3_PSK: auth = "WPA3"; break;
+        case WIFI_AUTH_WPA2_WPA3_PSK: auth = "WPA2/WPA3"; break;
+        case WIFI_AUTH_WAPI_PSK: auth = "WAPI"; break;
+        default: auth = "OPEN"; break;
+        }
+        printf("WIFI_AP: \"%s\" RSSI: %d AUTH: %s CH: %d\n",
+               (char *)ap_records[i].ssid,
+               (int)ap_records[i].rssi,
+               auth,
+               (int)ap_records[i].primary);
+    }
+    free(ap_records);
+    return 0;
+}
+
 static int console_wifi(int argc, char **argv)
 {
     if (argc < 2) {
-        printf("wifi setup | status | connect | forget\n");
+        printf("wifi setup | status | connect | forget | scan\n");
         return 0;
     }
     if (argc == 2 && strcmp(argv[1], "status") == 0) {
@@ -613,18 +696,26 @@ static int console_wifi(int argc, char **argv)
             : "connecting");
         return 0;
     }
-    if (argc != 2) {
-        printf("Usage: wifi [setup|status|connect|forget]\n");
-        return 1;
+    if (argc == 2 && strcmp(argv[1], "scan") == 0) {
+        return console_wifi_scan();
     }
-    if (strcmp(argv[1], "setup") == 0) {
-        return console_wifi_setup();
-    }
-    if (strcmp(argv[1], "forget") == 0) {
+    if (argc == 2 && strcmp(argv[1], "forget") == 0) {
         return forget_wifi_credentials();
     }
-    if (strcmp(argv[1], "connect") != 0) {
-        printf("Usage: wifi [setup|status|connect|forget]\n");
+    if (argc >= 2 && strcmp(argv[1], "setup") == 0) {
+        if (argc == 3 || argc == 4) {
+            const char *ssid = argv[2];
+            const char *pass = (argc >= 4) ? argv[3] : "";
+            return configure_wifi_direct(ssid, pass);
+        }
+        if (argc == 2) {
+            return console_wifi_setup();
+        }
+        printf("Usage: wifi setup [<ssid> [<password>]]\n");
+        return 1;
+    }
+    if (argc != 2 || strcmp(argv[1], "connect") != 0) {
+        printf("Usage: wifi [setup|status|connect|forget|scan]\n");
         return 1;
     }
     if (!atomic_load(&s_wifi_configured)) {
@@ -1229,7 +1320,7 @@ static int console_tv_shell(int argc, char **argv)
 static esp_err_t console_init(void)
 {
     static const esp_console_cmd_t commands[] = {
-        { .command = "wifi", .help = "Configure Wi-Fi or show/connect: wifi [setup|status|connect|forget]", .func = console_wifi },
+        { .command = "wifi", .help = "Configure Wi-Fi or show/connect/scan: wifi [setup|status|connect|forget|scan]", .func = console_wifi },
         { .command = "tv-connect", .help = "Connect to an Android TV: tv-connect <host> [port]", .func = console_tv_connect },
         { .command = "tv-disconnect", .help = "Disconnect from the Android TV", .func = console_tv_disconnect },
         { .command = "tv-status", .help = "Show Android TV ADB status", .func = console_tv_status },

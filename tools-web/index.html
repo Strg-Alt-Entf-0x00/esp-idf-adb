@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Android TV ADB Studio · ESP32-P4 / S3 Console</title>
+
+  <link rel="stylesheet" href="css/design-system.css">
+  <link rel="stylesheet" href="css/console.css">
+</head>
+<body>
+
+  <!-- ========================================================================
+   * SHELL: Top Navigation Header
+   * ======================================================================== -->
+  <header class="app-header">
+    <div class="brand-section">
+      <span class="brand-title">ANDROID TV ADB STUDIO</span>
+      <span class="brand-sub">Wireless Remote &amp; Device Control</span>
+    </div>
+
+    <div class="header-actions">
+      <!-- Web Serial Connect Icon-Button -->
+      <button class="icon-btn" id="btnConnect" data-tooltip="Connect ESP32 (115200 Baud)" aria-label="Connect ESP32">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2v6m0 0l3-3m-3 3L9 5M5 11h14M7 11v5a5 5 0 0010 0v-5"></path>
+        </svg>
+      </button>
+
+      <!-- Toggle Terminal Drawer -->
+      <button class="icon-btn" id="btnToggleTerm" data-tooltip="Toggle Serial Console" aria-label="Toggle Serial Console">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="4 17 10 11 4 5"></polyline>
+          <line x1="12" y1="19" x2="20" y2="19"></line>
+        </svg>
+      </button>
+
+      <!-- Help Modal Dialog -->
+      <button class="icon-btn" id="btnHelp" data-tooltip="Help &amp; ADB Documentation" aria-label="Open Help">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+          <line x1="12" y1="17" x2="12.01" y2="17"></line>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- ========================================================================
+   * ARCHETYPE CONTENT: Authentic TV Remote (Left) + 560px Controls (Right)
+   * ======================================================================== -->
+  <main class="studio-workspace-grid">
+    <!-- Left: Remote Stage -->
+    <section class="remote-stage">
+      <div class="tv-remote-casing">
+        <div class="remote-top-notch"></div>
+
+        <!-- Row 1: Mute & Power -->
+        <div class="rem-row-duo">
+          <button type="button" class="rem-btn" data-tv-cmd="tv-key mute" title="Mute (tv-key mute)">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+              <line x1="23" y1="9" x2="17" y2="15"></line>
+              <line x1="17" y1="9" x2="23" y2="15"></line>
+            </svg>
+          </button>
+          <button type="button" class="rem-btn btn-power" id="btnRemPower" data-tv-cmd="tv-key power" title="Power (tv-key power)">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2">
+              <path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
+              <line x1="12" y1="2" x2="12" y2="12"></line>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Row 2-5: Number Pad: 1-9, PRE-CH, 0, LIST -->
+        <div class="rem-grid-3">
+          <button type="button" class="rem-btn" data-tv-cmd="tv-key 8" title="1">1</button>
+          <button type="button" class="rem-btn" data-tv-cmd="tv-key 9" title="2">2</button>
+          <button type="button" class="rem-btn" data-tv-cmd="tv-key 10" title="3">3</button>
+          <button type="button" class="rem-btn" data-tv-cmd="tv-key 11" title="4">4</button>
+          <button type="button" class="rem-btn" data-tv-cmd="tv-key 12" title="5">5</button>
+          <button type="button" class="rem-btn" data-tv-cmd="tv-key 13" title="6">6</button>
+          <button type="button" class="rem-btn" data-tv-cmd="tv-key 14" title="7">7</button>
+          <button type="button" class="rem-btn" data-tv-cmd="tv-key 15" title="8">8</button>
+          <button type="button" class="rem-btn" data-tv-cmd="tv-key 16" title="9">9</button>
+          <button type="button" class="rem-btn font-sm" data-tv-cmd="tv-key 229" title="Previous Channel (PRE-CH)">PRE-CH</button>
+          <button type="button" class="rem-btn" data-tv-cmd="tv-key 7" title="0">0</button>
+          <button type="button" class="rem-btn font-sm" data-tv-cmd="tv-key 257" title="Channel List (LIST)">LIST</button>
+        </div>
+
+        <!-- Row 6: Volume, Center Info/Settings, Program Rockers -->
+        <div class="rem-rockers-grid">
+          <!-- Left: Vol Rocker -->
+          <div class="rem-rocker-col">
+            <button type="button" class="rem-btn" data-tv-cmd="tv-volume up 1" title="Volume Up">+</button>
+            <span class="rocker-label">VOL</span>
+            <button type="button" class="rem-btn" data-tv-cmd="tv-volume down 1" title="Volume Down">−</button>
+          </div>
+
+          <!-- Center: Info & Settings -->
+          <div class="rem-center-col">
+            <button type="button" class="rem-btn" data-tv-cmd="tv-key 165" title="Info">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+              </svg>
+            </button>
+            <button type="button" class="rem-btn" data-tv-cmd="tv-key 176" title="Settings">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="3"></circle>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Right: Program Rocker -->
+          <div class="rem-rocker-col">
+            <button type="button" class="rem-btn" data-tv-cmd="tv-key 166" title="Channel Up (P+)">∧</button>
+            <span class="rocker-label">P</span>
+            <button type="button" class="rem-btn" data-tv-cmd="tv-key 167" title="Channel Down (P-)">∨</button>
+          </div>
+        </div>
+
+        <!-- Row 7: D-Pad 3x3 Cluster -->
+        <div class="rem-dpad-grid">
+          <button type="button" class="rem-btn font-sm" data-tv-cmd="tv-key menu" title="Menu">MENU</button>
+          <button type="button" class="rem-btn" data-tv-cmd="tv-key up" title="Up">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"></polyline></svg>
+          </button>
+          <button type="button" class="rem-btn" data-tv-cmd="tv-key home" title="Home">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
+          </button>
+
+          <button type="button" class="rem-btn" data-tv-cmd="tv-key left" title="Left">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+          </button>
+          <button type="button" class="rem-btn rem-dpad-ok" data-tv-cmd="tv-key ok" title="OK / Select">OK</button>
+          <button type="button" class="rem-btn" data-tv-cmd="tv-key right" title="Right">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </button>
+
+          <button type="button" class="rem-btn" data-tv-cmd="tv-key back" title="Back">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 14 4 9 9 4"></polyline><path d="M20 20v-7a4 4 0 0 0-4-4H4"></path></svg>
+          </button>
+          <button type="button" class="rem-btn" data-tv-cmd="tv-key down" title="Down">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          </button>
+          <button type="button" class="rem-btn font-sm" data-tv-cmd="tv-key 178" title="Input Source">SRC</button>
+        </div>
+
+        <!-- Row 8: Function Keys (EXIT, GUIDE, TEXT, LANG, SUBT.) -->
+        <div class="rem-grid-3">
+          <button type="button" class="rem-btn font-sm" data-tv-cmd="tv-key 4" title="Exit">EXIT</button>
+          <button type="button" class="rem-btn font-sm" data-tv-cmd="tv-key 172" title="TV Guide (EPG)">GUIDE</button>
+          <button type="button" class="rem-btn font-sm" data-tv-cmd="tv-key 233" title="Teletext (TEXT)">TEXT</button>
+        </div>
+        <div class="rem-row-duo">
+          <button type="button" class="rem-btn font-sm" data-tv-cmd="tv-key 234" title="Language (LANG)">LANG</button>
+          <button type="button" class="rem-btn font-sm" data-tv-cmd="tv-key 175" title="Subtitles (SUBT.)">SUBT.</button>
+        </div>
+
+        <!-- Row 9: 4 Color Keys: Red, Green, Yellow, Blue -->
+        <div class="rem-colors-row">
+          <button type="button" class="rem-color-btn c-red" data-tv-cmd="tv-key 183" title="Red Key"></button>
+          <button type="button" class="rem-color-btn c-green" data-tv-cmd="tv-key 184" title="Green Key"></button>
+          <button type="button" class="rem-color-btn c-yellow" data-tv-cmd="tv-key 185" title="Yellow Key"></button>
+          <button type="button" class="rem-color-btn c-blue" data-tv-cmd="tv-key 186" title="Blue Key"></button>
+        </div>
+
+        <!-- Row 10: Media Controls (<<, ||, >>, REC, Play, Stop) -->
+        <div class="rem-grid-3">
+          <button type="button" class="rem-btn" data-tv-cmd="tv-key 89" title="Rewind">
+            <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><polygon points="11 19 2 12 11 5 11 19"></polygon><polygon points="22 19 13 12 22 5 22 19"></polygon></svg>
+          </button>
+          <button type="button" class="rem-btn" data-tv-cmd="tv-key 127" title="Pause">
+            <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+          </button>
+          <button type="button" class="rem-btn" data-tv-cmd="tv-key 90" title="Fast Forward">
+            <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><polygon points="13 19 22 12 13 5 13 19"></polygon><polygon points="2 19 11 12 2 5 2 19"></polygon></svg>
+          </button>
+          <button type="button" class="rem-btn font-sm" style="color: #f87171;" data-tv-cmd="tv-key 130" title="Record">● REC</button>
+          <button type="button" class="rem-btn" data-tv-cmd="tv-key 126" title="Play">
+            <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+          </button>
+          <button type="button" class="rem-btn" data-tv-cmd="tv-key 86" title="Stop">
+            <svg viewBox="0 0 24 24" width="11" height="11" fill="currentColor"><rect x="5" y="5" width="14" height="14"></rect></svg>
+          </button>
+        </div>
+      </div>
+
+
+    </section>
+
+    <!-- Right: Standard 560px Controls Panel -->
+    <aside class="controls-panel">
+      <!-- 4 Streamlined Tabs -->
+      <div class="tab-strip">
+        <button class="tab-btn active" onclick="switchTab('tabWifi', this)">Wi-Fi Setup</button>
+        <button class="tab-btn" onclick="switchTab('tabTarget', this)">Android TV</button>
+        <button class="tab-btn" onclick="switchTab('tabApps', this)">Installed Apps</button>
+        <button class="tab-btn" onclick="switchTab('tabChannels', this)">Channels &amp; CSV</button>
+      </div>
+
+      <!-- Android TV target configuration -->
+      <div id="tabTarget" class="tab-body" style="display: none;">
+        <div class="panel-card">
+          <div class="panel-title">Target Android TV Connection</div>
+
+          <!-- Inline IP, Port, Connect/Disconnect Toggle Icon-Btn, Info Icon-Btn -->
+          <div style="display: flex; align-items: flex-end; gap: 8px;">
+            <div class="field-row" style="flex: 1;">
+              <span class="field-label">Target IP Address</span>
+              <input type="text" id="tvHost" placeholder="Android TV IP address">
+            </div>
+            <div class="field-row" style="width: 85px;">
+              <span class="field-label">Port</span>
+              <input type="number" id="tvPort" value="5555" placeholder="5555">
+            </div>
+            
+            <!-- Connect / Disconnect Toggle Icon Button -->
+            <button class="icon-btn" id="btnTvToggleConnect" data-tooltip="Connect to Android TV" aria-label="Connect TV">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ESP32 Wi-Fi Setup -->
+      <div id="tabWifi" class="tab-body">
+        <div class="panel-card">
+          <div class="panel-title">
+            <span>ESP32 Wi-Fi Station Configuration</span>
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <!-- Scan Nearby Networks Icon-Btn -->
+              <button class="icon-btn" id="btnWifiScan" data-tooltip="Scan Nearby Networks (wifi scan)" aria-label="Scan Networks" onclick="scanWifiNetworks()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M5 12.55a11 11 0 0 1 14.08 0"></path>
+                  <path d="M1.42 9a16 16 0 0 1 21.16 0"></path>
+                  <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
+                  <line x1="12" y1="20" x2="12.01" y2="20"></line>
+                </svg>
+              </button>
+
+              <!-- Forget Wi-Fi Credentials Icon-Btn -->
+              <button class="icon-btn" id="btnWifiForget" data-tooltip="Forget Saved Credentials (wifi forget)" aria-label="Forget Wi-Fi">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="3 6 5 6 21 6"></polyline>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                  <line x1="10" y1="11" x2="10" y2="17"></line>
+                  <line x1="14" y1="11" x2="14" y2="17"></line>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Nearby networks -->
+          <div class="field-row">
+            <span class="field-label">Nearby networks</span>
+            <select id="wifiNetworkPicker" onchange="onSelectDiscoveredNetwork(this.value)">
+              <option value="">—</option>
+            </select>
+          </div>
+
+          <div class="field-row">
+            <span class="field-label">Wi-Fi SSID</span>
+            <input type="text" id="wifiSsid" placeholder="Your Wi-Fi SSID">
+          </div>
+          <div class="field-row">
+            <span class="field-label">Wi-Fi Password</span>
+            <input type="password" id="wifiPass" placeholder="Wi-Fi Password">
+          </div>
+          <div>
+            <button class="btn btn-primary" style="width: 100%;" id="btnWifiSetup">Save &amp; Connect</button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- TAB 3: Dynamic Installed Apps (Professional ListView) -->
+      <div id="tabApps" class="tab-body" style="display: none;">
+        <div class="panel-card">
+          <div class="panel-title">
+            <span>Installed Android TV Packages</span>
+            <button class="icon-btn" id="btnRefreshApps" data-tooltip="Refresh App List (tv-app-list)" aria-label="Refresh Apps">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="23 4 23 10 17 10"></polyline>
+                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Search / Direct Launch Bar -->
+          <div style="display: flex; gap: 8px;">
+            <input type="text" id="appSearchInput" placeholder="Filter apps or enter package name..." oninput="filterApps()">
+            <button class="icon-btn" id="btnQuickLaunchTyped" data-tooltip="Launch Typed Package" aria-label="Launch Package" onclick="launchTypedPackage()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Professional Scrollable ListView -->
+          <div class="app-list-container" id="appListContainer">
+            <div style="text-align: center; color: var(--text-muted); font-size: 11px; padding: 30px;">
+              Connect TV and click refresh icon to read installed apps via ADB.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 3: Channels & CSV -->
+      <div id="tabChannels" class="tab-body" style="display: none;">
+        <div class="panel-card">
+          <!-- Title Row with Icon-Buttons placed directly to the right of the title -->
+          <div class="panel-title">
+            <span>Channel Database</span>
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <!-- Export from TV Icon-Btn -->
+              <button class="icon-btn" id="btnExportChannels" data-tooltip="Export Channels from TV (tv-export)" aria-label="Export Channels">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+              </button>
+
+              <!-- Save CSV Icon-Btn -->
+              <button class="icon-btn" id="btnDownloadCsv" data-tooltip="Download Channel CSV File" aria-label="Save CSV">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                  <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                  <polyline points="7 3 7 8 15 8"></polyline>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Channel Search and Dynamic Service-Type Filter -->
+          <div class="field-row channel-filter-row">
+            <div class="channel-search-wrap">
+              <input type="text" id="chanSearchInput" placeholder="Filter channels by name or number..." oninput="filterChannels()" aria-label="Search TV channels">
+              <span class="channel-search-count" id="chanCountSuffix" aria-live="polite">0 / 0</span>
+            </div>
+            <select id="chanServiceTypeFilter" aria-label="Filter channels by service type" onchange="filterChannels()">
+              <option value="">All service types</option>
+            </select>
+          </div>
+
+          <!-- Channel Table -->
+          <div class="channel-table-wrap">
+            <table class="channel-table" id="chanTable">
+              <thead>
+                <tr>
+                  <th style="width: 50px;">CH #</th>
+                  <th>Channel Name</th>
+                  <th>Service Type</th>
+                  <th style="width: 60px; text-align: right;">Action</th>
+                </tr>
+              </thead>
+              <tbody id="chanTableBody">
+                <tr>
+                  <td colspan="4" style="text-align: center; color: var(--text-muted); padding: 24px;">
+                    No channels loaded. Click export icon to read from TV.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <!-- ========================================================================
+   * STATUS BAR
+   * ======================================================================== -->
+  <footer class="status-bar">
+    <div class="status-left">
+      <div class="status-item">
+        <span class="status-dot" id="statusDot"></span>
+        <span id="statusText">ESP32: Disconnected</span>
+      </div>
+    </div>
+    <div class="status-center" id="statusMessage" role="status" aria-live="polite" aria-atomic="true"></div>
+    <div class="status-right">
+      <div class="status-item" id="statusInfo">
+        <span id="statusTv">TV: Unknown</span>
+        <span aria-hidden="true">·</span>
+        <span id="statusWifi">Wi-Fi: Unknown</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ========================================================================
+   * SHELL: Collapsible Bottom Terminal Drawer (Dock Console for CLI, Log & Text)
+   * ======================================================================== -->
+  <div class="bottom-terminal-drawer" id="bottomTerminalDrawer">
+    <div class="drawer-header">
+      <div class="drawer-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="4 17 10 11 4 5"></polyline>
+          <line x1="12" y1="19" x2="20" y2="19"></line>
+        </svg>
+        <span>Serial Console · 115200 baud</span>
+      </div>
+      <div class="drawer-actions">
+        <button class="icon-btn" id="btnCopyTerm" data-tooltip="Copy Log to Clipboard" aria-label="Copy serial log to clipboard">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="8" y="8" width="13" height="13" rx="2"></rect>
+            <path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"></path>
+          </svg>
+        </button>
+        <button class="icon-btn" id="btnDownloadTerm" data-tooltip="Download Log" aria-label="Download serial log">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+        </button>
+        <button class="icon-btn" id="btnClearTerm" data-tooltip="Clear Log" aria-label="Clear serial log">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="3 6 5 6 21 6"></polyline>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+          </svg>
+        </button>
+        <button class="icon-btn" id="btnCloseDrawer" data-tooltip="Close Drawer" aria-label="Close serial console">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+    </div>
+    <div class="drawer-body" id="termLog"></div>
+    <div class="drawer-input-row">
+      <input type="text" id="termCmdInput" placeholder="Type a command and press Enter...">
+      <button class="icon-btn" id="btnSendCmd" data-tooltip="Send Command">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="22" y1="2" x2="11" y2="13"></line>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+   * SHELL: Help Modal Dialog
+   * ======================================================================== -->
+  <div class="modal-backdrop" id="helpModal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <span class="modal-title">Android TV ADB Studio · Reference &amp; Setup</span>
+        <button class="icon-btn" id="btnCloseHelp">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <div style="font-size: 12px; line-height: 1.6; color: var(--text-dim); display: flex; flex-direction: column; gap: 10px;">
+        <p><strong style="color: #fff;">1. Android TV Preparation:</strong> Enable Developer Options on your TV (click "Build number" 7 times) and turn on <em style="color: var(--accent-ice);">Network Debugging (ADB over TCP/IP)</em>.</p>
+        <p><strong style="color: #fff;">2. ESP32 Connection:</strong> Connect your ESP32 board via USB to your PC and click the serial connect icon in the top-right header (115200 Baud). Configure Wi-Fi in the Wi-Fi Setup tab if required.</p>
+        <p><strong style="color: #fff;">3. Connect TV:</strong> Enter the target IP address and click the link icon. On first connection, accept the USB/Network debugging authorization prompt on your TV screen.</p>
+        <p><strong style="color: #fff;">4. Keyboard Navigation:</strong> Arrow keys for D-Pad, Enter for OK, Esc for Back, H for Home, M for Menu, Space for Play/Pause, +/- for Volume.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+   * JAVASCRIPT: Engine, Dynamic Apps & Remote Logic
+   * ======================================================================== -->
+  <script src="js/serial-simulator.js"></script>
+  <script src="js/connection-wifi.js"></script>
+  <script src="js/app-library.js"></script>
+  <script src="js/remote-channels.js"></script>
+  <script src="js/ui.js"></script>
+</body>
+</html>

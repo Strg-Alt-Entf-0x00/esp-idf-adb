@@ -14,10 +14,12 @@
 - Improved error handling for PSA private-key export and NVS initialization.
 - Documented that the example's NVS data is not encrypted by default and that
   production provisioning must configure encryption separately.
-- Added a standalone local-first HTML5 channel CSV viewer/editor with a dark
-  default theme, tabbed workspace layout, virtual TV remote controls, dynamic app launcher,
-  single connect toggle with firmware handshake verification, Web Serial console, and framed
-  ESP32 channel-list export.
+- Rebuilt the standalone web interface as **Android TV ADB Studio** with
+  Wi-Fi setup and scanning, Android TV ADB connection, a virtual remote,
+  device-reported installed packages with process-backed Start/Stop controls,
+  searchable and service-filtered channel export, a global status bar, and a
+  Web Serial console. Unknown device state is shown as unavailable rather than
+  being inferred or simulated.
 - Lowered stale close stream log level in ADB client to debug to eliminate spurious warnings
   during rapid sequential shell executions.
 - Added an Android TV companion application with a one-shot, DUMP-protected

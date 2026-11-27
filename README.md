@@ -37,10 +37,10 @@ consuming project before deployment.
   a protected one-shot broadcast receiver (`de.esp32adb.companion/.AdbExportReceiver`) allowing the
   firmware `tv-export` command to trigger and stream a channel list without root or OEM unlocking.
 
-- [`Android TV Web Suite`](tools-web/android_tv_suite.html)
-  provides the standalone local-first HTML5 web suite for the ESP32.
-  It connects directly to the ESP32 USB serial console at 115,200 baud with single-click handshake verification,
-  providing TV channel CSV export & editing, a full virtual D-Pad remote, dynamic app launcher, and a docked Web Serial terminal.
+- [`Android TV ADB Studio`](tools-web/index.html)
+  is the standalone browser-based control studio for the ESP32 firmware. It uses Web Serial at 115,200 baud,
+  verifies the firmware handshake, and presents Wi-Fi setup, Android TV connection, a virtual remote,
+  installed apps, TV channels, and a serial terminal in one interface.
 
 - [`tests/protocol`](tests/protocol/README.md)
   is a separate Unity test application for protocol wire-header encoding/decoding, malformed packet
@@ -55,6 +55,23 @@ esp-build.bat -t esp32 build
 esp-build.bat -t esp32p4 build
 esp-build.bat -t esp32p4 -p COM4 flash monitor
 ```
+
+## Android TV ADB Studio
+
+Open [`tools-web/index.html`](tools-web/index.html) in a Chromium-based browser with Web Serial support and
+grant access to the ESP32 serial port when prompted. No web server or cloud service is required.
+
+Use the tabs in setup order:
+
+1. **Wi-Fi Setup** scans for nearby networks and configures or forgets the ESP32's saved credentials.
+2. **Android TV** connects to the TV's network ADB endpoint using its IP address and port.
+3. **Installed Apps** lists packages returned by the TV. Start/Stop controls follow observed process state;
+   they remain unavailable when the TV cannot report that state.
+4. **Channels & CSV** exports the TV's channel list, provides search and service-type filters, and allows
+   saving the received CSV.
+
+The status bar reports ESP32, Wi-Fi, and TV state; the serial drawer shows command and device output.
+Device-dependent lists and statuses are populated from firmware/TV responses rather than demo data.
 
 ## Add the component
 
@@ -130,13 +147,15 @@ or inference tasks.
 
 ## Web app tests
 
-Run the framed Web Serial transfer tests from the repository root:
+Run the web UI regression tests from the repository root:
 
 ```powershell
 node --test .\tests\*.test.mjs
 ```
 
-The Node tests use only built-in modules.
+The tests cover serial channel-transfer framing and failures, device-backed status reporting, Wi-Fi scans,
+installed-package/process-state handling, channel filtering, and credential redaction. They use only Node.js
+built-in modules and do not require a connected board.
 
 ## Build protocol tests
 
